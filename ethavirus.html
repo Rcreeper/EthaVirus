@@ -1,0 +1,1845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>ETHAVIRUS // Pixel Pathogen Lab & Global Simulator</title>
+  <!-- Retro Pixel Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* ==========================================================================
+       ETHAVIRUS - STRICT BLUE & RED PIXEL ARCADE DESIGN SYSTEM
+       ========================================================================== */
+    :root {
+      --blue-void: #050a18;
+      --blue-deep: #071026;
+      --blue-panel: #0b1736;
+      --blue-mid: #152b5e;
+      --blue-bright: #2563eb;
+      --blue-neon: #60a5fa;
+      --blue-ice: #f8fafc;
+
+      --red-void: #24050a;
+      --red-deep: #450a0a;
+      --red-mid: #991b1b;
+      --red-bright: #dc2626;
+      --red-neon: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+      image-rendering: pixelated;
+      user-select: none;
+    }
+
+    input {
+      user-select: text;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--blue-void);
+      color: var(--blue-ice);
+      font-family: 'VT323', monospace;
+      font-size: 18px;
+      line-height: 1.25;
+      overflow-x: hidden;
+    }
+
+    .font-pixel {
+      font-family: 'Press Start 2P', monospace;
+      letter-spacing: 0.04em;
+    }
+
+    .font-term {
+      font-family: 'VT323', monospace;
+    }
+
+    /* Pixelated Retro Borders & Bevels */
+    .pixel-box-blue {
+      background-color: var(--blue-panel);
+      border: 3px solid var(--blue-bright);
+      box-shadow:
+        inset 3px 3px 0px var(--blue-mid),
+        inset -3px -3px 0px var(--blue-deep),
+        4px 4px 0px #02040a;
+    }
+
+    .pixel-box-red {
+      background-color: var(--red-void);
+      border: 3px solid var(--red-neon);
+      box-shadow:
+        inset 3px 3px 0px var(--red-deep),
+        inset -3px -3px 0px #140205,
+        4px 4px 0px #02040a;
+    }
+
+    .pixel-inset-blue {
+      background-color: var(--blue-deep);
+      border: 2px solid var(--blue-mid);
+      box-shadow: inset 2px 2px 0px #030712;
+    }
+
+    .pixel-inset-red {
+      background-color: #170306;
+      border: 2px solid var(--red-mid);
+      box-shadow: inset 2px 2px 0px #0a0103;
+    }
+
+    /* Retro Arcade Buttons */
+    .btn-pixel-blue {
+      background-color: var(--blue-mid);
+      color: var(--blue-ice);
+      border: 2px solid var(--blue-neon);
+      box-shadow:
+        inset 2px 2px 0px var(--blue-bright),
+        inset -2px -2px 0px var(--blue-deep),
+        3px 3px 0px #02040a;
+      transition: transform 0.05s steps(2), background-color 0.1s;
+      cursor: pointer;
+    }
+    .btn-pixel-blue:hover:not(:disabled) {
+      background-color: var(--blue-bright);
+      color: #ffffff;
+    }
+    .btn-pixel-blue:active:not(:disabled) {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0px #02040a;
+    }
+
+    .btn-pixel-red {
+      background-color: var(--red-mid);
+      color: #ffffff;
+      border: 2px solid var(--red-neon);
+      box-shadow:
+        inset 2px 2px 0px var(--red-bright),
+        inset -2px -2px 0px var(--red-deep),
+        3px 3px 0px #02040a;
+      transition: transform 0.05s steps(2), background-color 0.1s;
+      cursor: pointer;
+    }
+    .btn-pixel-red:hover:not(:disabled) {
+      background-color: var(--red-bright);
+      color: #ffffff;
+    }
+    .btn-pixel-red:active:not(:disabled) {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0px #02040a;
+    }
+
+    /* Custom Pixel Range Slider */
+    input[type="range"].pixel-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 14px;
+      background: var(--blue-deep);
+      border: 2px solid var(--blue-bright);
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type="range"].pixel-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px;
+      height: 20px;
+      background: var(--red-neon);
+      border: 2px solid #f8fafc;
+      box-shadow: 2px 2px 0px #02040a;
+      cursor: pointer;
+    }
+
+    input[type="range"].pixel-slider::-moz-range-thumb {
+      width: 14px;
+      height: 20px;
+      background: var(--red-neon);
+      border: 2px solid #f8fafc;
+      box-shadow: 2px 2px 0px #02040a;
+      border-radius: 0;
+      cursor: pointer;
+    }
+
+    /* CRT Scanlines Overlay */
+    .crt-overlay {
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: linear-gradient(
+        rgba(5, 10, 24, 0) 50%,
+        rgba(2, 4, 10, 0.25) 50%
+      );
+      background-size: 100% 4px;
+    }
+
+    /* Pixel Scrollbars */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--blue-deep);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--blue-bright);
+      border: 1px solid var(--blue-neon);
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--red-neon);
+    }
+
+    @keyframes pixelBlink {
+      0%, 49% { opacity: 1; }
+      50%, 100% { opacity: 0.3; }
+    }
+    .animate-pixel-blink {
+      animation: pixelBlink 1s infinite;
+    }
+
+    .bg-dither-blue {
+      background-image: radial-gradient(#152b5e 1px, transparent 1px);
+      background-size: 4px 4px;
+    }
+  </style>
+</head>
+<body class="bg-dither-blue lg:h-screen lg:overflow-hidden flex flex-col">
+
+  <!-- CRT Scanline Layer -->
+  <div id="crtOverlay" class="crt-overlay"></div>
+
+  <!-- Minimalist Toast Notification -->
+  <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-xs pointer-events-none"></div>
+
+  <!-- ========================================================================
+       1. CLEAN START SCREEN OVERLAY (No info splash, pure retro arcade intro)
+       ======================================================================== -->
+  <div id="startOverlay" class="fixed inset-0 z-50 bg-[#050a18] bg-dither-blue flex items-center justify-center p-4 transition-opacity duration-300">
+    <div class="pixel-box-blue max-w-lg w-full p-8 sm:p-10 text-center relative">
+      <!-- Corner Pixel Accents -->
+      <span class="absolute top-2 left-2 w-2.5 h-2.5 bg-red-500"></span>
+      <span class="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500"></span>
+      <span class="absolute bottom-2 left-2 w-2.5 h-2.5 bg-blue-400"></span>
+      <span class="absolute bottom-2 right-2 w-2.5 h-2.5 bg-blue-400"></span>
+
+      <!-- Pixel Biohazard Icon -->
+      <div class="w-16 h-16 mx-auto mb-6 pixel-inset-red flex items-center justify-center">
+        <svg width="42" height="42" viewBox="0 0 16 16" shape-rendering="crispEdges">
+          <rect x="6" y="1" width="4" height="2" fill="#ef4444"/>
+          <rect x="5" y="3" width="2" height="2" fill="#dc2626"/>
+          <rect x="9" y="3" width="2" height="2" fill="#dc2626"/>
+          <rect x="7" y="6" width="2" height="4" fill="#60a5fa"/>
+          <rect x="6" y="7" width="4" height="2" fill="#60a5fa"/>
+          <rect x="2" y="9" width="3" height="2" fill="#ef4444"/>
+          <rect x="11" y="9" width="3" height="2" fill="#ef4444"/>
+          <rect x="3" y="11" width="2" height="3" fill="#dc2626"/>
+          <rect x="11" y="11" width="2" height="3" fill="#dc2626"/>
+          <rect x="5" y="13" width="6" height="2" fill="#991b1b"/>
+        </svg>
+      </div>
+
+      <h1 class="font-pixel text-2xl sm:text-4xl text-red-500 drop-shadow-[4px_4px_0px_#02040a] mb-4">
+        ETHAVIRUS
+      </h1>
+
+      <p class="font-pixel text-xs sm:text-sm text-blue-300 tracking-wide mb-8 leading-relaxed">
+        WANNA RULE THE WORLD FOR ONCE?
+      </p>
+
+      <button
+        onclick="dismissStartScreen()"
+        class="btn-pixel-red px-10 py-4 font-pixel text-sm sm:text-base tracking-widest inline-flex items-center gap-3"
+      >
+        <span>START</span>
+        <span class="animate-pixel-blink">&gt;</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       COMPACT TOP HEADER BAR
+       ======================================================================== -->
+  <header class="pixel-box-blue border-x-0 border-t-0 px-4 py-2 flex items-center justify-between gap-3 shrink-0 z-30">
+    <div class="flex items-center gap-2.5">
+      <span class="w-3 h-3 bg-red-500 animate-pixel-blink"></span>
+      <span class="font-pixel text-sm sm:text-base text-red-500">ETHAVIRUS</span>
+      <span class="hidden sm:inline text-blue-300 text-base">// PATHOGEN &amp; EARTH SIMULATOR</span>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <button id="toggleAudioBtn" onclick="toggleAudio()" class="btn-pixel-blue px-2.5 py-1 font-pixel text-[9px]">
+        SFX:ON
+      </button>
+      <button id="toggleCrtBtn" onclick="toggleCRT()" class="btn-pixel-blue px-2.5 py-1 font-pixel text-[9px]">
+        CRT:ON
+      </button>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       2. SIMPLIFIED SPLIT-SCREEN WORKSPACE (LEFT LAB + RIGHT PIXEL EARTH)
+       ======================================================================== -->
+  <div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
+
+    <!-- ======================================================================
+         LEFT PANEL: VIRUS LAB & INFO INPUT (360px - 400px on Desktop)
+         ====================================================================== -->
+    <aside class="w-full lg:w-[390px] xl:w-[400px] shrink-0 pixel-box-blue border-y-0 border-l-0 flex flex-col lg:h-full overflow-hidden">
+      <!-- Scrollable Controls Area -->
+      <div class="flex-1 overflow-y-auto p-3.5 space-y-3.5">
+
+        <!-- Virus Name + Live Pixel Sprite Preview -->
+        <div class="pixel-inset-blue p-3">
+          <label for="virusNameInput" class="block font-pixel text-[9px] text-blue-300 mb-1.5">
+            VIRUS NAME
+          </label>
+          <div class="flex items-center gap-2.5">
+            <canvas id="virusSpriteCanvas" width="48" height="48" class="w-12 h-12 border-2 border-red-600 bg-[#050a18] shrink-0"></canvas>
+            <div class="flex-1 min-w-0">
+              <input
+                id="virusNameInput"
+                type="text"
+                maxlength="24"
+                value="ETHA-01"
+                oninput="handleVirusNameChange(this.value)"
+                placeholder="ENTER NAME..."
+                class="w-full bg-[#050a18] border-2 border-red-500 px-2.5 py-1.5 text-red-400 font-pixel text-xs focus:outline-none focus:border-blue-400"
+              />
+              <div class="flex items-center justify-between text-sm text-blue-300 mt-1">
+                <span>R0: <strong id="previewR0Label" class="text-red-400">3.4</strong></span>
+                <span>LETHAL: <strong id="previewLethalityLabel" class="text-red-400">22%</strong></span>
+                <button onclick="randomizeVirusStats()" class="text-blue-400 hover:text-red-400 underline text-sm cursor-pointer">
+                  [RANDOM]
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 7 Core Pathogen Sliders -->
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="font-pixel text-[9px] text-blue-300">PATHOGEN PARAMETERS (7)</span>
+            <span class="text-xs text-blue-400">1 - 100</span>
+          </div>
+          <div id="traitsList" class="space-y-2.5">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Compact Symptoms Bar -->
+        <div class="pixel-inset-red p-3">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="font-pixel text-[9px] text-red-400">SYMPTOMS ARSENAL (24)</span>
+            <span id="activeSymptomCount" class="font-pixel text-[9px] text-blue-300">2 / 24</span>
+          </div>
+          <!-- Category Filter Tabs -->
+          <div class="flex flex-wrap gap-1 mb-2" id="symptomCategoryTabs">
+            <button onclick="setSymptomCategory('ALL')" data-cat="ALL" class="sym-cat-btn px-1.5 py-0.5 border border-red-500 bg-red-950 font-pixel text-[7px] text-white cursor-pointer">ALL</button>
+            <button onclick="setSymptomCategory('RESP')" data-cat="RESP" class="sym-cat-btn px-1.5 py-0.5 border border-blue-800 bg-[#050a18] font-pixel text-[7px] text-blue-300 cursor-pointer">RESP</button>
+            <button onclick="setSymptomCategory('SYS')" data-cat="SYS" class="sym-cat-btn px-1.5 py-0.5 border border-blue-800 bg-[#050a18] font-pixel text-[7px] text-blue-300 cursor-pointer">SYS</button>
+            <button onclick="setSymptomCategory('NEURO')" data-cat="NEURO" class="sym-cat-btn px-1.5 py-0.5 border border-blue-800 bg-[#050a18] font-pixel text-[7px] text-blue-300 cursor-pointer">NEURO</button>
+            <button onclick="setSymptomCategory('LETHAL')" data-cat="LETHAL" class="sym-cat-btn px-1.5 py-0.5 border border-blue-800 bg-[#050a18] font-pixel text-[7px] text-blue-300 cursor-pointer">LETHAL</button>
+          </div>
+          <div id="symptomsBarContainer" class="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto pr-1">
+            <!-- Populated by JS as compact pixel pills -->
+          </div>
+          <div id="symptomHoverTooltip" class="mt-2 px-2 py-1 bg-[#050a18] border border-blue-900 text-xs text-blue-200 min-h-[24px]">
+            Hover or toggle any symptom to inspect clinical impact.
+          </div>
+          <div class="mt-2 pt-1.5 border-t border-red-900/80 flex justify-between text-sm text-blue-300">
+            <span>SYMPTOM BOOST:</span>
+            <span id="symptomBonusSummary" class="font-pixel text-[8px] text-red-400">+16% SPREAD | +14% SEV</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Sticky Bottom Release / Simulate Action Button -->
+      <div class="p-3 bg-[#071026] border-t-2 border-blue-700 shrink-0">
+        <button
+          id="releaseVirusBtn"
+          onclick="triggerReleaseOrReset()"
+          class="btn-pixel-red w-full py-3 px-4 font-pixel text-xs flex items-center justify-center gap-2"
+        >
+          <span>RELEASE VIRUS</span>
+          <span>&gt;&gt;</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- ======================================================================
+         RIGHT PANEL: SCROLLABLE PIXEL EARTH & CITY OUTBREAK OVERVIEW
+         ====================================================================== -->
+    <main class="flex-1 flex flex-col relative bg-[#050a18] min-h-[480px] lg:h-full overflow-hidden">
+
+      <!-- Compact Top Simulation Control & Global Telemetry Bar -->
+      <div class="bg-[#0b1736]/95 border-b-2 border-blue-600 px-3 py-2 flex flex-wrap items-center justify-between gap-2 z-20 shrink-0">
+        <!-- Playback Controls -->
+        <div class="flex items-center gap-1.5">
+          <button id="simPlayPauseBtn" onclick="toggleSimulationPlay()" class="btn-pixel-red px-3 py-1.5 font-pixel text-[9px]">
+            &#9654; PLAY
+          </button>
+          <button id="simSpeedBtn" onclick="cycleSimSpeed()" class="btn-pixel-blue px-2.5 py-1.5 font-pixel text-[9px]">
+            1X
+          </button>
+          <button onclick="resetSimulation()" class="btn-pixel-blue px-2.5 py-1.5 font-pixel text-[9px]">
+            RESET
+          </button>
+          <span class="ml-1 font-pixel text-[9px] text-blue-300">DAY <strong id="statDay" class="text-white">0</strong></span>
+        </div>
+
+        <!-- Compact Global Counters -->
+        <div class="flex items-center gap-3 pixel-inset-blue px-2.5 py-1">
+          <div class="text-sm">
+            <span class="text-blue-300">NATIONS:</span>
+            <strong id="statCountries" class="font-pixel text-[10px] text-red-400 ml-1">1/195</strong>
+          </div>
+          <div class="text-sm">
+            <span class="text-blue-300">INFECTED:</span>
+            <strong id="statInfected" class="font-pixel text-[10px] text-red-400 ml-1">0</strong>
+          </div>
+          <div class="text-sm">
+            <span class="text-blue-300">FATALITIES:</span>
+            <strong id="statDead" class="font-pixel text-[10px] text-red-500 ml-1">0</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Country Search & Region Filter Bar (195 Sovereign Nations) -->
+      <div class="bg-[#071026] border-b-2 border-blue-800 px-3 py-1.5 flex flex-wrap items-center gap-2 z-20 shrink-0">
+        <span class="font-pixel text-[8px] text-blue-300">195 COUNTRIES:</span>
+        <div class="relative flex-1 min-w-[170px] max-w-xs">
+          <input
+            id="countrySearchInput"
+            type="text"
+            oninput="filterCountryDropdown(this.value)"
+            onfocus="showCountryDropdown()"
+            placeholder="SEARCH ANY COUNTRY (E.G. INDIA, USA)..."
+            class="w-full bg-[#050a18] border border-blue-500 px-2 py-1 text-sm text-blue-100 placeholder-blue-500 focus:outline-none focus:border-red-500"
+          />
+          <div id="countryDropdownList" class="hidden absolute left-0 right-0 top-full mt-1 max-h-60 overflow-y-auto pixel-box-blue z-40 divide-y divide-blue-900">
+            <!-- Populated dynamically with matching sovereign countries -->
+          </div>
+        </div>
+        <select
+          id="regionFilterSelect"
+          onchange="handleRegionFilterChange(this.value)"
+          class="bg-[#050a18] border border-blue-500 px-2 py-1 text-sm text-blue-200 focus:outline-none focus:border-red-500 cursor-pointer"
+        >
+          <option value="ALL">ALL REGIONS (195)</option>
+          <option value="ASIA">ASIA (48)</option>
+          <option value="EUROPE">EUROPE (44)</option>
+          <option value="AFRICA">AFRICA (54)</option>
+          <option value="NORTH AMERICA">NORTH AMERICA (23)</option>
+          <option value="SOUTH AMERICA">SOUTH AMERICA (12)</option>
+          <option value="OCEANIA">OCEANIA (14)</option>
+        </select>
+        <span class="text-xs text-blue-400 hidden xl:inline">CLICK ANY COUNTRY NODE ON EARTH OR PICK FROM DIRECTORY</span>
+      </div>
+
+      <!-- Scrollable Pixel Earth Canvas Viewport -->
+      <div id="earthCanvasWrapper" class="relative flex-1 w-full h-full overflow-hidden cursor-grab active:cursor-grabbing">
+        <canvas id="earthCanvas" class="block w-full h-full"></canvas>
+
+        <!-- Minimalist Map Legend Pill (Top-Left) -->
+        <div class="absolute top-2.5 left-2.5 bg-[#050a18]/90 border border-blue-600 px-2.5 py-1 pointer-events-none text-sm flex items-center gap-3">
+          <span class="flex items-center gap-1.5 text-blue-300">
+            <span class="w-2 h-2 bg-[#7cc4ff] inline-block"></span> HEALTHY
+          </span>
+          <span class="flex items-center gap-1.5 text-red-400">
+            <span class="w-2 h-2 bg-[#ff2a3c] inline-block"></span> INFECTED
+          </span>
+          <span class="text-blue-400 hidden sm:inline">SCROLL/ZOOM EARTH &bull; CLICK COUNTRY</span>
+        </div>
+
+        <!-- Zoom Level Pill (Top-Right) -->
+        <div id="zoomLevelBadge" class="absolute top-2.5 right-2.5 bg-[#050a18]/90 border border-blue-600 px-2 py-1 font-pixel text-[8px] text-blue-300 pointer-events-none">
+          1.0X
+        </div>
+
+        <!-- ====================================================================
+             HIDDEN-UNTIL-CLICKED COUNTRY IMPACT & OUTBREAK FORECAST DRAWER
+             ==================================================================== -->
+        <div
+          id="cityForecastDrawer"
+          class="hidden absolute bottom-3 left-3 right-3 sm:left-4 sm:right-4 pixel-box-red p-3.5 sm:p-4 z-30 max-h-[68%] overflow-y-auto"
+        >
+          <!-- Drawer Header -->
+          <div class="flex flex-wrap items-start justify-between gap-2 border-b-2 border-red-900 pb-2 mb-2.5">
+            <div>
+              <div class="flex flex-wrap items-center gap-2">
+                <span id="cityRegionBadge" class="px-1.5 py-0.5 bg-red-950 border border-red-500 font-pixel text-[8px] text-red-400">ASIA</span>
+                <span id="cityClimateBadge" class="font-pixel text-[8px] text-blue-300">TROPICAL</span>
+                <span id="cityRiskRatingBadge" class="px-1.5 py-0.5 bg-red-600 text-white font-pixel text-[8px]">EXTREME RISK</span>
+              </div>
+              <div class="flex flex-wrap items-baseline gap-3 mt-1">
+                <h2 id="cityDetailName" class="font-pixel text-sm sm:text-base text-red-400">INDIA</h2>
+                <span class="text-blue-200 text-base">NATIONAL POP: <strong id="cityDetailPop" class="text-white">1,463,865,525</strong></span>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button onclick="setPatientZeroToSelected()" class="btn-pixel-red px-2.5 py-1.5 font-pixel text-[8px]">
+                SET PATIENT ZERO
+              </button>
+              <button onclick="closeCityDrawer()" class="btn-pixel-blue px-2.5 py-1.5 font-pixel text-[8px]" title="Close Country Forecast">
+                X
+              </button>
+            </div>
+          </div>
+
+          <!-- Stacked Population Health / Infection / Fatality Curve Bar -->
+          <div class="mb-3">
+            <div class="flex justify-between text-sm mb-1">
+              <span class="text-blue-300">STATUS: <strong id="cityLiveStatusText" class="text-red-400">MONITORING</strong></span>
+              <span class="text-blue-200">
+                INFECTED: <strong id="cityLiveInfected" class="text-red-400">0</strong> &bull;
+                FATALITIES: <strong id="cityLiveDead" class="text-red-500">0</strong>
+              </span>
+            </div>
+            <div class="w-full h-3.5 bg-blue-950 border border-blue-500 flex overflow-hidden">
+              <div id="cityBarHealthy" class="bg-blue-500 h-full transition-all duration-150" style="width: 100%"></div>
+              <div id="cityBarInfected" class="bg-red-500 h-full transition-all duration-150" style="width: 0%"></div>
+              <div id="cityBarDead" class="bg-red-950 h-full transition-all duration-150" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <!-- 4 Key Forecast Metrics -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-2.5">
+            <div class="pixel-inset-red p-2">
+              <div class="font-pixel text-[7px] text-red-300">NATIONAL R0</div>
+              <div id="predLocalR0" class="font-pixel text-xs text-red-400 mt-0.5">4.1</div>
+            </div>
+            <div class="pixel-inset-red p-2">
+              <div class="font-pixel text-[7px] text-red-300">PEAK OUTBREAK</div>
+              <div id="predDaysToPeak" class="font-pixel text-xs text-red-400 mt-0.5">18 DAYS</div>
+            </div>
+            <div class="pixel-inset-red p-2">
+              <div class="font-pixel text-[7px] text-red-300">EST. FATALITIES</div>
+              <div id="predEstDeaths" class="font-pixel text-xs text-red-500 mt-0.5">6.4M</div>
+            </div>
+            <div class="pixel-inset-blue p-2">
+              <div class="font-pixel text-[7px] text-blue-300">HEALTHCARE COLLAPSE</div>
+              <div id="predCollapseDays" class="font-pixel text-xs text-blue-200 mt-0.5">12 DAYS</div>
+            </div>
+          </div>
+
+          <!-- Tailored Scenario Summary -->
+          <div class="pixel-inset-blue p-2.5">
+            <div class="font-pixel text-[8px] text-red-400 mb-1">
+              SCENARIO IF <span id="predVirusNameSpan" class="underline">ETHA-01</span> HITS <span id="predCityNameSpan">INDIA</span>:
+            </div>
+            <p id="predNarrativeText" class="text-blue-100 text-base leading-snug">
+              Select any country on the Earth map to inspect its national outbreak forecast.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ========================================================================
+       JAVASCRIPT: AUDIO ENGINE, SIMPLIFIED VIRUS LAB, & SCROLLABLE PIXEL EARTH
+       ======================================================================== -->
+  <script>
+    /* ========================================================================
+       0. WEB AUDIO API SYNTHESIZER ENGINE
+       ======================================================================== */
+    const AudioEngine = {
+      enabled: true,
+      ctx: null,
+      getAudioContext() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) this.ctx = new AudioContext();
+        }
+        return this.ctx;
+      },
+      start() {
+        try {
+          const ctx = this.getAudioContext();
+          if (ctx && ctx.state === 'suspended') ctx.resume();
+        } catch (e) {
+          // ignore audio suspension restrictions
+        }
+      },
+      playTone(freq, type = 'square', duration = 0.08, vol = 0.03, pitchSlide = 0) {
+        if (!this.enabled) return;
+        try {
+          const ctx = this.getAudioContext();
+          if (!ctx) return;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, ctx.currentTime);
+          if (pitchSlide !== 0) {
+            osc.frequency.exponentialRampToValueAtTime(Math.max(40, freq + pitchSlide), ctx.currentTime + duration);
+          }
+          gain.gain.setValueAtTime(vol, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + duration);
+        } catch (e) {
+          // Fallback if audio context fails
+        }
+      },
+      click() {
+        this.playTone(520, 'square', 0.04, 0.02, -180);
+      },
+      toggle(active) {
+        if (active) {
+          this.playTone(660, 'square', 0.06, 0.025, 220);
+        } else {
+          this.playTone(320, 'square', 0.06, 0.025, -120);
+        }
+      }
+    };
+
+    /* ========================================================================
+       1. CORE DATA: 7 PATHOGEN TRAITS, 24 SYMPTOMS, & ALL 195 COUNTRIES
+       ======================================================================== */
+    const TRAIT_DEFINITIONS = [
+      { key: 'size', num: '1', name: 'SIZE', hint: 'Smaller bypasses filters; larger boosts payload' },
+      { key: 'transmission', num: '2', name: 'TRANSMISSION RATE', hint: 'Speed of host-to-host spread' },
+      { key: 'infectivity', num: '3', name: 'INFECTIVITY', hint: 'Ease of entering and infecting host cells' },
+      { key: 'severity', num: '4', name: 'SEVERITY', hint: 'Clinical illness intensity and mortality' },
+      { key: 'mutation', num: '5', name: 'MUTATION RATE', hint: 'Speed of genetic drift and immune evasion' },
+      { key: 'hostRange', num: '6', name: 'HOST RANGE', hint: 'Species infected (birds, mammals, humans)' },
+      { key: 'stability', num: '7', name: 'ENVIRONMENTAL STABILITY', hint: 'Survival outside host in heat/cold' }
+    ];
+
+    const SYMPTOM_CATALOG = [
+      // RESPIRATORY (6)
+      { id: 'cough', cat: 'RESP', name: 'COUGHING', desc: 'Aerosolizes droplets across crowded spaces (+12% Spread, +4% Sev)', transMod: 12, sevMod: 4, lethalMod: 1 },
+      { id: 'sneeze', cat: 'RESP', name: 'SNEEZING', desc: 'High-velocity nasal expulsion of virions (+15% Spread, +3% Sev)', transMod: 15, sevMod: 3, lethalMod: 0 },
+      { id: 'dyspnea', cat: 'RESP', name: 'DYSPNEA', desc: 'Acute shortness of breath & hypoxia (+3% Spread, +12% Sev)', transMod: 3, sevMod: 12, lethalMod: 4 },
+      { id: 'pneumonia', cat: 'RESP', name: 'PNEUMONIA', desc: 'Severe fluid buildup in lung alveoli (+6% Spread, +18% Sev)', transMod: 6, sevMod: 18, lethalMod: 10 },
+      { id: 'pulmedema', cat: 'RESP', name: 'PULMONARY EDEMA', desc: 'Fatal respiratory flooding & asphyxiation (+4% Spread, +25% Sev)', transMod: 4, sevMod: 25, lethalMod: 16 },
+      { id: 'hemoptysis', cat: 'RESP', name: 'HEMOPTYSIS', desc: 'Coughing up blood contaminates surfaces (+14% Spread, +20% Sev)', transMod: 14, sevMod: 20, lethalMod: 11 },
+
+      // SYSTEMIC & DERMAL (6)
+      { id: 'fever', cat: 'SYS', name: 'HYPER-FEVER', desc: 'Sustained 41C core temperature spike (+4% Spread, +10% Sev)', transMod: 4, sevMod: 10, lethalMod: 4 },
+      { id: 'nausea', cat: 'SYS', name: 'NAUSEA', desc: 'Gastric distress & mucosal shedding (+7% Spread, +5% Sev)', transMod: 7, sevMod: 5, lethalMod: 1 },
+      { id: 'rash', cat: 'SYS', name: 'DERMAL RASH', desc: 'Contact-transmissible epidermal lesions (+9% Spread, +6% Sev)', transMod: 9, sevMod: 6, lethalMod: 2 },
+      { id: 'sweating', cat: 'SYS', name: 'HYPERHIDROSIS', desc: 'Profuse fluid loss contaminates fomites (+10% Spread, +5% Sev)', transMod: 10, sevMod: 5, lethalMod: 2 },
+      { id: 'anemia', cat: 'SYS', name: 'ACUTE ANEMIA', desc: 'Erythrocyte breakdown weakens immunity (+2% Spread, +13% Sev)', transMod: 2, sevMod: 13, lethalMod: 6 },
+      { id: 'necrosis', cat: 'SYS', name: 'NECROSIS', desc: 'Gangrenous tissue death draws vector flies (+8% Spread, +26% Sev)', transMod: 8, sevMod: 26, lethalMod: 17 },
+
+      // NEUROLOGICAL (6)
+      { id: 'insomnia', cat: 'NEURO', name: 'INSOMNIA', desc: 'Chronic sleep deprivation impairs judgment (+3% Spread, +9% Sev)', transMod: 3, sevMod: 9, lethalMod: 3 },
+      { id: 'paranoia', cat: 'NEURO', name: 'PARANOIA', desc: 'Hosts flee quarantine zones, spreading strain (+11% Spread, +10% Sev)', transMod: 11, sevMod: 10, lethalMod: 2 },
+      { id: 'photophobia', cat: 'NEURO', name: 'PHOTOPHOBIA', desc: 'Optic nerve hypersensitivity & delirium (+2% Spread, +11% Sev)', transMod: 2, sevMod: 11, lethalMod: 3 },
+      { id: 'neuro', cat: 'NEURO', name: 'NEURO-DRIFT', desc: 'Synaptic inflammation & motor ataxia (+5% Spread, +20% Sev)', transMod: 5, sevMod: 20, lethalMod: 14 },
+      { id: 'seizures', cat: 'NEURO', name: 'SEIZURES', desc: 'Uncontrolled cortical electrical storms (+1% Spread, +22% Sev)', transMod: 1, sevMod: 22, lethalMod: 15 },
+      { id: 'encephalitis', cat: 'NEURO', name: 'ENCEPHALITIS', desc: 'Lethal brainstem swelling & cognitive loss (-2% Spread, +28% Sev)', transMod: -2, sevMod: 28, lethalMod: 21 },
+
+      // HEMORRHAGIC & LETHAL (6)
+      { id: 'hemorrhage', cat: 'LETHAL', name: 'HEMORRHAGING', desc: 'External capillary rupture boosts blood contact (+10% Spread, +24% Sev)', transMod: 10, sevMod: 24, lethalMod: 18 },
+      { id: 'intbleed', cat: 'LETHAL', name: 'INTERNAL BLEEDING', desc: 'Silent visceral arterial collapse (+0% Spread, +27% Sev)', transMod: 0, sevMod: 27, lethalMod: 22 },
+      { id: 'cytokine', cat: 'LETHAL', name: 'CYTOKINE STORM', desc: 'Runaway autoimmune hyper-inflammation (+3% Spread, +30% Sev)', transMod: 3, sevMod: 30, lethalMod: 24 },
+      { id: 'paralysis', cat: 'LETHAL', name: 'PARALYSIS', desc: 'Motor neuron shutdown immobilizes host (-6% Spread, +26% Sev)', transMod: -6, sevMod: 26, lethalMod: 19 },
+      { id: 'coma', cat: 'LETHAL', name: 'COMA', desc: 'Deep unconsciousness halts host mobility (-8% Spread, +31% Sev)', transMod: -8, sevMod: 31, lethalMod: 25 },
+      { id: 'organ', cat: 'LETHAL', name: 'ORGAN FAILURE', desc: 'Simultaneous multi-organ systemic collapse (-5% Spread, +35% Sev)', transMod: -5, sevMod: 35, lethalMod: 30 }
+    ];
+
+    const WORLD_W = 1800;
+    const WORLD_H = 900;
+
+    // Helper: Convert real-world Latitude (-90..90) and Longitude (-180..180) to Robinson/Equirectangular Pixel Earth Coordinates
+    function latLonToXY(lat, lon) {
+      const x = Math.round(((lon + 180) / 360) * WORLD_W);
+      const y = Math.round(((90 - lat) / 180) * WORLD_H);
+      return { x, y };
+    }
+
+    // ALL 195 SOVEREIGN COUNTRIES (193 UN Member States + Holy See & State of Palestine) with 2026 Populations
+    const RAW_COUNTRIES = [
+      ['india', 'INDIA', 'ASIA', 21.0, 78.9, 1463865525, 'TROPICAL / MONSOON', 'tropical', 0.92, 62, 0.88],
+      ['china', 'CHINA', 'ASIA', 35.8, 104.1, 1416096094, 'TEMPERATE / CONTINENTAL', 'temperate', 0.84, 83, 0.94],
+      ['usa', 'UNITED STATES', 'NORTH AMERICA', 39.8, -98.5, 347275807, 'TEMPERATE / DIVERSE', 'temperate', 0.76, 86, 0.97],
+      ['indonesia', 'INDONESIA', 'ASIA', -2.5, 118.0, 285721236, 'EQUATORIAL TROPICAL', 'tropical', 0.86, 61, 0.84],
+      ['pakistan', 'PAKISTAN', 'ASIA', 30.3, 69.3, 255219554, 'ARID / SUBTROPICAL', 'hot', 0.88, 52, 0.79],
+      ['nigeria', 'NIGERIA', 'AFRICA', 9.0, 8.6, 237527782, 'TROPICAL SAVANNA', 'tropical', 0.89, 45, 0.80],
+      ['brazil', 'BRAZIL', 'SOUTH AMERICA', -10.2, -51.9, 212812405, 'TROPICAL / EQUATORIAL', 'tropical', 0.75, 69, 0.85],
+      ['bangladesh', 'BANGLADESH', 'ASIA', 23.7, 90.3, 175686899, 'TROPICAL MONSOON', 'tropical', 0.98, 53, 0.81],
+      ['russia', 'RUSSIA', 'EUROPE', 61.5, 95.0, 143997393, 'SUBARCTIC / CONTINENTAL', 'cold', 0.62, 75, 0.87],
+      ['ethiopia', 'ETHIOPIA', 'AFRICA', 9.1, 40.4, 135472051, 'TROPICAL HIGHLAND', 'temperate', 0.78, 44, 0.72],
+      ['mexico', 'MEXICO', 'NORTH AMERICA', 23.6, -102.5, 131946900, 'TROPICAL / ARID', 'temperate', 0.79, 67, 0.84],
+      ['japan', 'JAPAN', 'ASIA', 36.2, 138.2, 123103479, 'TEMPERATE ISLAND', 'temperate', 0.91, 93, 0.95],
+      ['egypt', 'EGYPT', 'AFRICA', 26.8, 30.8, 118365995, 'ARID DESERT', 'hot', 0.87, 61, 0.84],
+      ['philippines', 'PHILIPPINES', 'ASIA', 12.8, 121.7, 116786962, 'TROPICAL MARITIME', 'tropical', 0.90, 60, 0.82],
+      ['drc', 'DR CONGO', 'AFRICA', -4.0, 21.7, 112832473, 'EQUATORIAL RAINFOREST', 'tropical', 0.74, 38, 0.68],
+      ['vietnam', 'VIETNAM', 'ASIA', 14.0, 108.2, 101598527, 'TROPICAL MONSOON', 'tropical', 0.88, 72, 0.83],
+      ['iran', 'IRAN', 'ASIA', 32.4, 53.6, 92417681, 'ARID / SEMI-ARID', 'hot', 0.74, 71, 0.78],
+      ['turkey', 'TURKEY', 'ASIA', 38.9, 35.2, 87685426, 'MEDITERRANEAN', 'temperate', 0.79, 78, 0.91],
+      ['germany', 'GERMANY', 'EUROPE', 51.1, 10.4, 84075075, 'TEMPERATE OCEANIC', 'temperate', 0.84, 92, 0.95],
+      ['tanzania', 'TANZANIA', 'AFRICA', -6.3, 34.8, 70545865, 'TROPICAL SAVANNA', 'tropical', 0.72, 46, 0.71],
+      ['thailand', 'THAILAND', 'ASIA', 15.8, 100.9, 71619863, 'TROPICAL', 'tropical', 0.81, 79, 0.89],
+      ['uk', 'UNITED KINGDOM', 'EUROPE', 54.0, -2.5, 69551332, 'TEMPERATE MARITIME', 'temperate', 0.86, 90, 0.97],
+      ['france', 'FRANCE', 'EUROPE', 46.2, 2.2, 66650804, 'TEMPERATE OCEANIC', 'temperate', 0.81, 91, 0.96],
+      ['southafrica', 'SOUTH AFRICA', 'AFRICA', -30.5, 22.9, 64747319, 'SUBTROPICAL', 'temperate', 0.73, 64, 0.83],
+      ['italy', 'ITALY', 'EUROPE', 41.8, 12.5, 59146260, 'MEDITERRANEAN', 'temperate', 0.83, 89, 0.93],
+      ['kenya', 'KENYA', 'AFRICA', -0.02, 37.9, 57532493, 'TROPICAL', 'temperate', 0.76, 52, 0.79],
+      ['myanmar', 'MYANMAR', 'ASIA', 21.9, 95.9, 54850648, 'TROPICAL MONSOON', 'tropical', 0.75, 48, 0.70],
+      ['colombia', 'COLOMBIA', 'SOUTH AMERICA', 4.5, -74.2, 53425635, 'TROPICAL', 'tropical', 0.74, 70, 0.81],
+      ['sudan', 'SUDAN', 'AFRICA', 15.5, 30.2, 51662147, 'ARID DESERT', 'hot', 0.68, 40, 0.66],
+      ['uganda', 'UGANDA', 'AFRICA', 1.3, 32.2, 51384894, 'TROPICAL', 'tropical', 0.82, 47, 0.72],
+      ['southkorea', 'SOUTH KOREA', 'ASIA', 36.5, 127.8, 51667029, 'TEMPERATE', 'temperate', 0.92, 92, 0.93],
+      ['spain', 'SPAIN', 'EUROPE', 40.4, -3.7, 47889958, 'MEDITERRANEAN', 'temperate', 0.78, 90, 0.93],
+      ['algeria', 'ALGERIA', 'AFRICA', 28.0, 1.6, 47435312, 'ARID / MEDITERRANEAN', 'hot', 0.67, 65, 0.76],
+      ['iraq', 'IRAQ', 'ASIA', 33.2, 43.6, 47020774, 'ARID DESERT', 'hot', 0.77, 56, 0.75],
+      ['argentina', 'ARGENTINA', 'SOUTH AMERICA', -38.4, -63.6, 45851378, 'TEMPERATE', 'temperate', 0.71, 75, 0.82],
+      ['afghanistan', 'AFGHANISTAN', 'ASIA', 33.9, 67.7, 43844111, 'ARID CONTINENTAL', 'cold', 0.73, 39, 0.64],
+      ['yemen', 'YEMEN', 'ASIA', 15.5, 48.5, 41773878, 'ARID DESERT', 'hot', 0.74, 37, 0.63],
+      ['canada', 'CANADA', 'NORTH AMERICA', 56.1, -106.3, 40126723, 'SUBARCTIC / TEMPERATE', 'cold', 0.64, 89, 0.91],
+      ['angola', 'ANGOLA', 'AFRICA', -11.2, 17.8, 39040039, 'TROPICAL', 'tropical', 0.69, 43, 0.70],
+      ['ukraine', 'UKRAINE', 'EUROPE', 48.3, 31.1, 38980376, 'CONTINENTAL', 'cold', 0.74, 70, 0.80],
+      ['morocco', 'MOROCCO', 'AFRICA', 31.7, -7.0, 38430770, 'MEDITERRANEAN', 'temperate', 0.76, 63, 0.82],
+      ['poland', 'POLAND', 'EUROPE', 51.9, 19.1, 38140910, 'CONTINENTAL', 'cold', 0.80, 82, 0.87],
+      ['uzbekistan', 'UZBEKISTAN', 'ASIA', 41.3, 64.5, 37053428, 'CONTINENTAL ARID', 'cold', 0.75, 66, 0.75],
+      ['mozambique', 'MOZAMBIQUE', 'AFRICA', -18.6, 35.5, 35631653, 'TROPICAL', 'tropical', 0.70, 41, 0.68],
+      ['malaysia', 'MALAYSIA', 'ASIA', 4.2, 101.9, 35977838, 'EQUATORIAL', 'tropical', 0.79, 80, 0.89],
+      ['ghana', 'GHANA', 'AFRICA', 7.9, -1.0, 35064272, 'TROPICAL', 'tropical', 0.81, 53, 0.77],
+      ['saudiarabia', 'SAUDI ARABIA', 'ASIA', 23.8, 45.0, 34566328, 'ARID DESERT', 'hot', 0.68, 79, 0.88],
+      ['peru', 'PERU', 'SOUTH AMERICA', -9.1, -75.0, 34576665, 'TROPICAL / ANDEAN', 'temperate', 0.72, 66, 0.79],
+      ['madagascar', 'MADAGASCAR', 'AFRICA', -18.7, 46.8, 32740678, 'TROPICAL ISLAND', 'tropical', 0.72, 42, 0.65],
+      ['ivorycoast', 'IVORY COAST', 'AFRICA', 7.5, -5.5, 32711547, 'TROPICAL', 'tropical', 0.78, 48, 0.75],
+      ['cameroon', 'CAMEROON', 'AFRICA', 7.3, 12.3, 29879337, 'EQUATORIAL', 'tropical', 0.74, 46, 0.72],
+      ['nepal', 'NEPAL', 'ASIA', 28.3, 84.1, 29618118, 'ALPINE / SUBTROPICAL', 'cold', 0.83, 51, 0.71],
+      ['niger', 'NIGER', 'AFRICA', 17.6, 8.0, 27917831, 'SAHEL ARID', 'hot', 0.65, 36, 0.62],
+      ['venezuela', 'VENEZUELA', 'SOUTH AMERICA', 6.4, -66.5, 28516896, 'TROPICAL', 'tropical', 0.71, 55, 0.74],
+      ['australia', 'AUSTRALIA', 'OCEANIA', -25.2, 133.7, 26974026, 'ARID / TEMPERATE', 'hot', 0.60, 91, 0.88],
+      ['northkorea', 'NORTH KOREA', 'ASIA', 40.3, 127.5, 26571036, 'CONTINENTAL', 'cold', 0.82, 49, 0.45],
+      ['syria', 'SYRIA', 'ASIA', 34.8, 38.9, 25620427, 'SEMI-ARID', 'hot', 0.79, 44, 0.68],
+      ['mali', 'MALI', 'AFRICA', 17.5, -3.9, 25198821, 'SAHEL ARID', 'hot', 0.66, 39, 0.64],
+      ['burkinafaso', 'BURKINA FASO', 'AFRICA', 12.2, -1.5, 24074580, 'TROPICAL SAHEL', 'hot', 0.76, 42, 0.66],
+      ['srilanka', 'SRI LANKA', 'ASIA', 7.8, 80.7, 23229470, 'TROPICAL ISLAND', 'tropical', 0.88, 72, 0.80],
+      ['malawi', 'MALAWI', 'AFRICA', -13.2, 34.3, 22216120, 'SUBTROPICAL', 'tropical', 0.82, 43, 0.66],
+      ['zambia', 'ZAMBIA', 'AFRICA', -13.1, 27.8, 21913874, 'TROPICAL', 'tropical', 0.69, 47, 0.70],
+      ['kazakhstan', 'KAZAKHSTAN', 'ASIA', 48.0, 66.9, 20843754, 'CONTINENTAL STEPPE', 'cold', 0.58, 73, 0.79],
+      ['chile', 'CHILE', 'SOUTH AMERICA', -35.6, -71.5, 19859921, 'TEMPERATE / ARID', 'temperate', 0.72, 81, 0.84],
+      ['romania', 'ROMANIA', 'EUROPE', 45.9, 24.9, 18908650, 'CONTINENTAL', 'temperate', 0.76, 76, 0.84],
+      ['ecuador', 'ECUADOR', 'SOUTH AMERICA', -1.8, -78.1, 18289896, 'EQUATORIAL', 'tropical', 0.77, 67, 0.78],
+      ['netherlands', 'NETHERLANDS', 'EUROPE', 52.1, 5.2, 18346819, 'TEMPERATE OCEANIC', 'temperate', 0.93, 93, 0.97],
+      ['senegal', 'SENEGAL', 'AFRICA', 14.4, -14.4, 18931966, 'TROPICAL SAHEL', 'hot', 0.77, 50, 0.76],
+      ['guatemala', 'GUATEMALA', 'NORTH AMERICA', 15.7, -90.2, 18687881, 'TROPICAL', 'tropical', 0.83, 57, 0.75],
+      ['chad', 'CHAD', 'AFRICA', 15.4, 18.7, 21003705, 'DESERT / SAHEL', 'hot', 0.64, 35, 0.61],
+      ['somalia', 'SOMALIA', 'AFRICA', 5.1, 46.1, 19654739, 'ARID', 'hot', 0.67, 34, 0.62],
+      ['zimbabwe', 'ZIMBABWE', 'AFRICA', -19.0, 29.1, 16950795, 'SUBTROPICAL', 'temperate', 0.71, 46, 0.69],
+      ['cambodia', 'CAMBODIA', 'ASIA', 12.5, 104.9, 17847982, 'TROPICAL MONSOON', 'tropical', 0.79, 54, 0.76],
+      ['southsudan', 'SOUTH SUDAN', 'AFRICA', 6.8, 31.3, 12188788, 'TROPICAL', 'tropical', 0.65, 33, 0.58],
+      ['rwanda', 'RWANDA', 'AFRICA', -1.9, 29.8, 14569341, 'TROPICAL HIGHLAND', 'temperate', 0.92, 58, 0.75],
+      ['guinea', 'GUINEA', 'AFRICA', 9.9, -9.6, 15099727, 'TROPICAL', 'tropical', 0.75, 41, 0.68],
+      ['benin', 'BENIN', 'AFRICA', 9.3, 2.3, 14814460, 'TROPICAL', 'tropical', 0.80, 44, 0.71],
+      ['haiti', 'HAITI', 'NORTH AMERICA', 18.9, -72.2, 11906095, 'TROPICAL ISLAND', 'tropical', 0.89, 38, 0.67],
+      ['tunisia', 'TUNISIA', 'AFRICA', 33.8, 9.5, 12348573, 'MEDITERRANEAN', 'temperate', 0.76, 69, 0.81],
+      ['bolivia', 'BOLIVIA', 'SOUTH AMERICA', -16.2, -63.5, 12581843, 'ANDEAN / TROPICAL', 'temperate', 0.65, 59, 0.71],
+      ['belgium', 'BELGIUM', 'EUROPE', 50.5, 4.4, 11758603, 'TEMPERATE OCEANIC', 'temperate', 0.91, 91, 0.95],
+      ['burundi', 'BURUNDI', 'AFRICA', -3.3, 29.9, 14390003, 'TROPICAL HIGHLAND', 'temperate', 0.91, 40, 0.65],
+      ['jordan', 'JORDAN', 'ASIA', 30.5, 36.2, 11520684, 'ARID DESERT', 'hot', 0.80, 72, 0.82],
+      ['dominicanrep', 'DOMINICAN REPUBLIC', 'NORTH AMERICA', 18.7, -70.1, 11520487, 'TROPICAL ISLAND', 'tropical', 0.84, 65, 0.81],
+      ['uae', 'UNITED ARAB EMIRATES', 'ASIA', 23.4, 53.8, 11346000, 'ARID DESERT', 'hot', 0.82, 87, 0.98],
+      ['cuba', 'CUBA', 'NORTH AMERICA', 21.5, -77.7, 10937203, 'TROPICAL ISLAND', 'tropical', 0.78, 76, 0.73],
+      ['honduras', 'HONDURAS', 'NORTH AMERICA', 15.2, -86.2, 11005850, 'TROPICAL', 'tropical', 0.78, 55, 0.74],
+      ['czechia', 'CZECHIA', 'EUROPE', 49.8, 15.4, 10609239, 'CONTINENTAL', 'temperate', 0.81, 85, 0.88],
+      ['sweden', 'SWEDEN', 'EUROPE', 60.1, 18.6, 10656633, 'NORDIC / SUBARCTIC', 'cold', 0.65, 92, 0.90],
+      ['tajikistan', 'TAJIKISTAN', 'ASIA', 38.8, 71.2, 10786734, 'ALPINE CONTINENTAL', 'cold', 0.75, 54, 0.68],
+      ['png', 'PAPUA NEW GUINEA', 'OCEANIA', -6.3, 143.9, 10762817, 'TROPICAL RAINFOREST', 'tropical', 0.67, 42, 0.64],
+      ['portugal', 'PORTUGAL', 'EUROPE', 39.3, -8.2, 10411834, 'MEDITERRANEAN', 'temperate', 0.80, 87, 0.90],
+      ['azerbaijan', 'AZERBAIJAN', 'ASIA', 40.1, 47.5, 10397713, 'SEMI-ARID / CASPIAN', 'temperate', 0.79, 68, 0.79],
+      ['greece', 'GREECE', 'EUROPE', 39.0, 21.8, 9938844, 'MEDITERRANEAN', 'temperate', 0.77, 83, 0.89],
+      ['hungary', 'HUNGARY', 'EUROPE', 47.1, 19.5, 9632287, 'CONTINENTAL', 'temperate', 0.79, 80, 0.87],
+      ['togo', 'TOGO', 'AFRICA', 8.6, 0.8, 9721608, 'TROPICAL', 'tropical', 0.82, 44, 0.71],
+      ['israel', 'ISRAEL', 'ASIA', 31.0, 34.8, 9517181, 'MEDITERRANEAN', 'hot', 0.90, 91, 0.91],
+      ['austria', 'AUSTRIA', 'EUROPE', 47.5, 14.5, 9113574, 'ALPINE TEMPERATE', 'cold', 0.79, 91, 0.91],
+      ['belarus', 'BELARUS', 'EUROPE', 53.7, 27.9, 8997603, 'CONTINENTAL', 'cold', 0.72, 74, 0.78],
+      ['switzerland', 'SWITZERLAND', 'EUROPE', 46.8, 8.2, 8967407, 'ALPINE TEMPERATE', 'cold', 0.85, 95, 0.94],
+      ['sierraleone', 'SIERRA LEONE', 'AFRICA', 8.4, -11.7, 8819794, 'TROPICAL', 'tropical', 0.79, 38, 0.67],
+      ['laos', 'LAOS', 'ASIA', 19.8, 102.4, 7873046, 'TROPICAL MONSOON', 'tropical', 0.68, 51, 0.71],
+      ['turkmenistan', 'TURKMENISTAN', 'ASIA', 38.9, 59.5, 7618847, 'ARID DESERT', 'hot', 0.63, 62, 0.65],
+      ['libya', 'LIBYA', 'AFRICA', 26.3, 17.2, 7458555, 'ARID DESERT', 'hot', 0.62, 57, 0.72],
+      ['kyrgyzstan', 'KYRGYZSTAN', 'ASIA', 41.2, 74.7, 7295034, 'ALPINE CONTINENTAL', 'cold', 0.70, 58, 0.71],
+      ['paraguay', 'PARAGUAY', 'SOUTH AMERICA', -23.4, -58.4, 7013078, 'SUBTROPICAL', 'tropical', 0.67, 62, 0.73],
+      ['nicaragua', 'NICARAGUA', 'NORTH AMERICA', 12.8, -85.2, 7007502, 'TROPICAL', 'tropical', 0.73, 56, 0.72],
+      ['bulgaria', 'BULGARIA', 'EUROPE', 42.7, 25.4, 6714560, 'CONTINENTAL', 'temperate', 0.73, 76, 0.82],
+      ['serbia', 'SERBIA', 'EUROPE', 44.0, 21.0, 6689039, 'CONTINENTAL', 'temperate', 0.76, 75, 0.82],
+      ['elsalvador', 'EL SALVADOR', 'NORTH AMERICA', 13.7, -88.8, 6365503, 'TROPICAL', 'tropical', 0.89, 61, 0.77],
+      ['congo', 'REPUBLIC OF THE CONGO', 'AFRICA', -0.2, 15.8, 6484437, 'EQUATORIAL', 'tropical', 0.66, 45, 0.70],
+      ['denmark', 'DENMARK', 'EUROPE', 56.2, 9.5, 6002507, 'TEMPERATE OCEANIC', 'cold', 0.81, 93, 0.92],
+      ['singapore', 'SINGAPORE', 'ASIA', 1.35, 103.8, 5870750, 'EQUATORIAL CITY-STATE', 'tropical', 0.99, 96, 0.98],
+      ['lebanon', 'LEBANON', 'ASIA', 33.8, 35.8, 5849421, 'MEDITERRANEAN', 'temperate', 0.92, 66, 0.81],
+      ['finland', 'FINLAND', 'EUROPE', 61.9, 25.7, 5623329, 'SUBARCTIC NORDIC', 'cold', 0.63, 92, 0.89],
+      ['liberia', 'LIBERIA', 'AFRICA', 6.4, -9.4, 5731206, 'TROPICAL', 'tropical', 0.74, 39, 0.66],
+      ['norway', 'NORWAY', 'EUROPE', 60.4, 8.4, 5623071, 'SUBARCTIC MARITIME', 'cold', 0.62, 94, 0.90],
+      ['slovakia', 'SLOVAKIA', 'EUROPE', 48.6, 19.6, 5474881, 'CONTINENTAL', 'cold', 0.79, 80, 0.85],
+      ['palestine', 'PALESTINE', 'ASIA', 31.9, 35.2, 5589623, 'MEDITERRANEAN', 'temperate', 0.94, 55, 0.72],
+      ['car', 'CENTRAL AFRICAN REPUBLIC', 'AFRICA', 6.6, 20.9, 5513282, 'TROPICAL', 'tropical', 0.61, 32, 0.57],
+      ['oman', 'OMAN', 'ASIA', 21.4, 55.9, 5494691, 'ARID DESERT', 'hot', 0.66, 78, 0.83],
+      ['ireland', 'IRELAND', 'EUROPE', 53.4, -8.2, 5308039, 'TEMPERATE OCEANIC', 'temperate', 0.76, 90, 0.93],
+      ['newzealand', 'NEW ZEALAND', 'OCEANIA', -40.9, 174.8, 5251899, 'TEMPERATE MARITIME', 'temperate', 0.65, 91, 0.86],
+      ['mauritania', 'MAURITANIA', 'AFRICA', 21.0, -10.9, 5315065, 'SAHARA DESERT', 'hot', 0.58, 41, 0.63],
+      ['costarica', 'COSTA RICA', 'NORTH AMERICA', 9.7, -83.7, 5152950, 'TROPICAL', 'tropical', 0.78, 77, 0.82],
+      ['kuwait', 'KUWAIT', 'ASIA', 29.3, 47.4, 5026078, 'ARID DESERT', 'hot', 0.88, 81, 0.89],
+      ['panama', 'PANAMA', 'NORTH AMERICA', 8.5, -80.7, 4571189, 'TROPICAL', 'tropical', 0.75, 73, 0.92],
+      ['croatia', 'CROATIA', 'EUROPE', 45.1, 15.2, 3848160, 'MEDITERRANEAN', 'temperate', 0.75, 81, 0.86],
+      ['georgia', 'GEORGIA', 'ASIA', 42.3, 43.3, 3806671, 'SUBTROPICAL / ALPINE', 'temperate', 0.74, 70, 0.79],
+      ['eritrea', 'ERITREA', 'AFRICA', 15.1, 39.7, 3607003, 'ARID RED SEA', 'hot', 0.69, 38, 0.58],
+      ['mongolia', 'MONGOLIA', 'ASIA', 46.8, 103.8, 3517100, 'EXTREME CONTINENTAL', 'cold', 0.45, 63, 0.67],
+      ['uruguay', 'URUGUAY', 'SOUTH AMERICA', -32.5, -55.7, 3384688, 'TEMPERATE', 'temperate', 0.67, 79, 0.80],
+      ['bosnia', 'BOSNIA AND HERZEGOVINA', 'EUROPE', 43.9, 17.6, 3140095, 'CONTINENTAL', 'temperate', 0.74, 72, 0.78],
+      ['qatar', 'QATAR', 'ASIA', 25.3, 51.1, 3115889, 'ARID DESERT', 'hot', 0.88, 86, 0.96],
+      ['moldova', 'MOLDOVA', 'EUROPE', 47.4, 28.3, 2996106, 'CONTINENTAL', 'temperate', 0.78, 69, 0.76],
+      ['namibia', 'NAMIBIA', 'AFRICA', -22.9, 18.4, 3092816, 'ARID DESERT', 'hot', 0.52, 55, 0.71],
+      ['armenia', 'ARMENIA', 'ASIA', 40.0, 45.0, 2952365, 'HIGHLAND CONTINENTAL', 'cold', 0.78, 70, 0.76],
+      ['lithuania', 'LITHUANIA', 'EUROPE', 55.1, 23.8, 2830144, 'BALTIC TEMPERATE', 'cold', 0.71, 81, 0.83],
+      ['jamaica', 'JAMAICA', 'NORTH AMERICA', 18.1, -77.2, 2837077, 'TROPICAL ISLAND', 'tropical', 0.86, 65, 0.81],
+      ['albania', 'ALBANIA', 'EUROPE', 41.1, 20.1, 2771508, 'MEDITERRANEAN', 'temperate', 0.78, 71, 0.79],
+      ['gambia', 'GAMBIA', 'AFRICA', 13.4, -15.3, 2822093, 'TROPICAL', 'tropical', 0.85, 43, 0.71],
+      ['gabon', 'GABON', 'AFRICA', -0.8, 11.6, 2593130, 'EQUATORIAL', 'tropical', 0.60, 56, 0.72],
+      ['botswana', 'BOTSWANA', 'AFRICA', -22.3, 24.6, 2562122, 'SEMI-ARID', 'hot', 0.54, 60, 0.73],
+      ['lesotho', 'LESOTHO', 'AFRICA', -29.6, 28.2, 2363325, 'HIGHLAND TEMPERATE', 'cold', 0.76, 44, 0.65],
+      ['guineabissau', 'GUINEA-BISSAU', 'AFRICA', 11.8, -15.1, 2249515, 'TROPICAL', 'tropical', 0.76, 37, 0.64],
+      ['slovenia', 'SLOVENIA', 'EUROPE', 46.1, 14.9, 2117072, 'ALPINE / MEDITERRANEAN', 'temperate', 0.79, 86, 0.87],
+      ['eqguinea', 'EQUATORIAL GUINEA', 'AFRICA', 1.6, 10.2, 1938431, 'EQUATORIAL', 'tropical', 0.74, 48, 0.70],
+      ['latvia', 'LATVIA', 'EUROPE', 56.8, 24.6, 1853559, 'BALTIC TEMPERATE', 'cold', 0.68, 79, 0.83],
+      ['northmacedonia', 'NORTH MACEDONIA', 'EUROPE', 41.6, 21.7, 1813791, 'CONTINENTAL', 'temperate', 0.76, 73, 0.78],
+      ['bahrain', 'BAHRAIN', 'ASIA', 26.0, 50.5, 1643332, 'ARID ISLAND', 'hot', 0.96, 82, 0.91],
+      ['trinidad', 'TRINIDAD AND TOBAGO', 'NORTH AMERICA', 10.6, -61.2, 1511155, 'TROPICAL ISLAND', 'tropical', 0.87, 71, 0.81],
+      ['timorleste', 'TIMOR-LESTE', 'ASIA', -8.8, 125.7, 1418517, 'TROPICAL ISLAND', 'tropical', 0.78, 45, 0.66],
+      ['estonia', 'ESTONIA', 'EUROPE', 58.5, 25.0, 1344232, 'BALTIC COLD', 'cold', 0.68, 83, 0.84],
+      ['mauritius', 'MAURITIUS', 'AFRICA', -20.3, 57.5, 1268280, 'TROPICAL ISLAND', 'tropical', 0.93, 73, 0.80],
+      ['cyprus', 'CYPRUS', 'EUROPE', 35.1, 33.4, 1370754, 'MEDITERRANEAN ISLAND', 'temperate', 0.82, 84, 0.86],
+      ['eswatini', 'ESWATINI', 'AFRICA', -26.5, 31.4, 1256174, 'SUBTROPICAL', 'temperate', 0.75, 48, 0.68],
+      ['djibouti', 'DJIBOUTI', 'AFRICA', 11.8, 42.5, 1184076, 'ARID DESERT', 'hot', 0.72, 46, 0.79],
+      ['fiji', 'FIJI', 'OCEANIA', -17.7, 178.0, 933154, 'TROPICAL PACIFIC', 'tropical', 0.73, 64, 0.76],
+      ['comoros', 'COMOROS', 'AFRICA', -11.6, 43.3, 882847, 'TROPICAL ISLAND', 'tropical', 0.91, 41, 0.65],
+      ['guyana', 'GUYANA', 'SOUTH AMERICA', 4.8, -58.9, 835986, 'EQUATORIAL', 'tropical', 0.55, 61, 0.71],
+      ['bhutan', 'BHUTAN', 'ASIA', 27.5, 90.4, 796682, 'ALPINE HIMALAYAN', 'cold', 0.64, 62, 0.65],
+      ['solomon', 'SOLOMON ISLANDS', 'OCEANIA', -9.6, 160.1, 838645, 'TROPICAL PACIFIC', 'tropical', 0.68, 47, 0.64],
+      ['luxembourg', 'LUXEMBOURG', 'EUROPE', 49.8, 6.1, 680453, 'TEMPERATE OCEANIC', 'temperate', 0.88, 94, 0.94],
+      ['montenegro', 'MONTENEGRO', 'EUROPE', 42.7, 19.3, 632729, 'MEDITERRANEAN', 'temperate', 0.72, 75, 0.80],
+      ['suriname', 'SURINAME', 'SOUTH AMERICA', 3.9, -56.0, 639850, 'EQUATORIAL', 'tropical', 0.54, 63, 0.70],
+      ['malta', 'MALTA', 'EUROPE', 35.9, 14.3, 545405, 'MEDITERRANEAN ISLAND', 'temperate', 0.97, 88, 0.89],
+      ['maldives', 'MALDIVES', 'ASIA', 3.2, 73.2, 529676, 'TROPICAL ATOLLS', 'tropical', 0.96, 71, 0.86],
+      ['caboverde', 'CABO VERDE', 'AFRICA', 16.5, -23.0, 527326, 'ARID ATLANTIC ISLAND', 'hot', 0.81, 62, 0.74],
+      ['brunei', 'BRUNEI', 'ASIA', 4.5, 114.7, 466330, 'EQUATORIAL', 'tropical', 0.76, 81, 0.82],
+      ['belize', 'BELIZE', 'NORTH AMERICA', 17.1, -88.4, 422924, 'TROPICAL', 'tropical', 0.63, 63, 0.75],
+      ['bahamas', 'BAHAMAS', 'NORTH AMERICA', 25.0, -77.3, 403033, 'TROPICAL ISLANDS', 'tropical', 0.71, 74, 0.85],
+      ['iceland', 'ICELAND', 'EUROPE', 64.9, -19.0, 398266, 'SUBARCTIC ISLAND', 'cold', 0.52, 94, 0.85],
+      ['vanuatu', 'VANUATU', 'OCEANIA', -15.3, 166.9, 335169, 'TROPICAL PACIFIC', 'tropical', 0.67, 51, 0.66],
+      ['barbados', 'BARBADOS', 'NORTH AMERICA', 13.1, -59.5, 282623, 'TROPICAL ISLAND', 'tropical', 0.93, 76, 0.83],
+      ['saotome', 'SAO TOME AND PRINCIPE', 'AFRICA', 0.18, 6.6, 240254, 'EQUATORIAL ISLAND', 'tropical', 0.85, 49, 0.66],
+      ['samoa', 'SAMOA', 'OCEANIA', -13.7, -172.1, 219306, 'TROPICAL PACIFIC', 'tropical', 0.74, 57, 0.68],
+      ['stlucia', 'SAINT LUCIA', 'NORTH AMERICA', 13.9, -60.9, 180149, 'TROPICAL ISLAND', 'tropical', 0.87, 68, 0.78],
+      ['kiribati', 'KIRIBATI', 'OCEANIA', 1.8, -157.3, 136488, 'EQUATORIAL ATOLLS', 'tropical', 0.82, 46, 0.60],
+      ['seychelles', 'SEYCHELLES', 'AFRICA', -4.6, 55.4, 132779, 'TROPICAL ISLANDS', 'tropical', 0.86, 74, 0.81],
+      ['grenada', 'GRENADA', 'NORTH AMERICA', 12.1, -61.6, 117303, 'TROPICAL ISLAND', 'tropical', 0.89, 67, 0.76],
+      ['micronesia', 'MICRONESIA', 'OCEANIA', 7.4, 150.5, 113683, 'TROPICAL PACIFIC', 'tropical', 0.81, 52, 0.63],
+      ['tonga', 'TONGA', 'OCEANIA', -21.1, -175.1, 103742, 'TROPICAL PACIFIC', 'tropical', 0.80, 56, 0.66],
+      ['stvincent', 'ST. VINCENT & GRENADINES', 'NORTH AMERICA', 12.9, -61.2, 99924, 'TROPICAL ISLANDS', 'tropical', 0.87, 66, 0.74],
+      ['antigua', 'ANTIGUA AND BARBUDA', 'NORTH AMERICA', 17.0, -61.7, 94209, 'TROPICAL ISLANDS', 'tropical', 0.85, 71, 0.79],
+      ['andorra', 'ANDORRA', 'EUROPE', 42.5, 1.5, 82904, 'ALPINE PYRENEES', 'cold', 0.83, 91, 0.82],
+      ['dominica', 'DOMINICA', 'NORTH AMERICA', 15.4, -61.3, 65871, 'TROPICAL ISLAND', 'tropical', 0.76, 65, 0.72],
+      ['stkitts', 'ST. KITTS AND NEVIS', 'NORTH AMERICA', 17.3, -62.7, 46922, 'TROPICAL ISLANDS', 'tropical', 0.84, 70, 0.76],
+      ['marshall', 'MARSHALL ISLANDS', 'OCEANIA', 7.1, 171.1, 36282, 'TROPICAL ATOLLS', 'tropical', 0.86, 50, 0.62],
+      ['liechtenstein', 'LIECHTENSTEIN', 'EUROPE', 47.1, 9.5, 40128, 'ALPINE TEMPERATE', 'cold', 0.87, 93, 0.86],
+      ['monaco', 'MONACO', 'EUROPE', 43.7, 7.4, 38341, 'MEDITERRANEAN COAST', 'temperate', 0.99, 95, 0.92],
+      ['sanmarino', 'SAN MARINO', 'EUROPE', 43.9, 12.4, 33572, 'MEDITERRANEAN', 'temperate', 0.92, 90, 0.84],
+      ['palau', 'PALAU', 'OCEANIA', 7.5, 134.5, 17663, 'TROPICAL PACIFIC', 'tropical', 0.68, 63, 0.67],
+      ['nauru', 'NAURU', 'OCEANIA', -0.52, 166.9, 12025, 'EQUATORIAL ISLAND', 'tropical', 0.92, 54, 0.61],
+      ['tuvalu', 'TUVALU', 'OCEANIA', -7.1, 177.6, 9492, 'TROPICAL ATOLLS', 'tropical', 0.90, 48, 0.58],
+      ['vatican', 'VATICAN CITY', 'EUROPE', 41.9, 12.45, 501, 'MEDITERRANEAN ENCLAVE', 'temperate', 0.98, 92, 0.91]
+    ];
+
+    const WORLD_COUNTRIES = RAW_COUNTRIES.map(([id, name, region, lat, lon, pop, climate, tempType, densityScore, health, transit]) => {
+      const { x, y } = latLonToXY(lat, lon);
+      const density = densityScore >= 0.9 ? 'EXTREME' : densityScore >= 0.8 ? 'HIGH' : densityScore >= 0.68 ? 'MODERATE' : 'LOW';
+      return {
+        id,
+        name,
+        region,
+        lat,
+        lon,
+        x,
+        y,
+        pop,
+        climate,
+        tempType,
+        density,
+        densityScore,
+        health,
+        transit,
+        fauna: region === 'ASIA' ? 'avian & bat reservoirs' :
+               region === 'AFRICA' ? 'tropical fruit bats & livestock' :
+               region === 'EUROPE' ? 'urban birds & wild boar' :
+               region === 'NORTH AMERICA' ? 'migratory waterfowl & rodents' :
+               region === 'SOUTH AMERICA' ? 'neotropical bats & primates' : 'seabirds & coastal fauna'
+      };
+    });
+
+    // High-resolution Realistic Earth Landmass Polygons (Lat/Lon mapped to Pixel Earth)
+    const EARTH_LANDMASS_LATLON = [
+      // North America Mainland
+      [[70,-162],[71,-156],[69,-136],[72,-125],[74,-95],[68,-82],[62,-78],[58,-64],[52,-56],[47,-53],[45,-61],[43,-70],[40,-74],[35,-75],[30,-81],[25,-80],[25,-82],[30,-84],[29,-90],[28,-96],[22,-97],[18,-94],[21,-90],[21,-87],[18,-88],[15,-83],[10,-84],[8,-78],[9,-80],[14,-92],[17,-101],[23,-106],[31,-114],[24,-110],[28,-115],[34,-119],[38,-123],[45,-124],[49,-125],[56,-133],[60,-145],[59,-152],[55,-162],[60,-166],[65,-168]],
+      // Canadian Arctic Archipelago & Greenland
+      [[75,-118],[78,-102],[81,-82],[76,-78],[72,-85],[73,-108]],
+      [[60,-44],[65,-38],[72,-22],[81,-18],[83,-35],[79,-65],[73,-56],[66,-53]],
+      // Cuba, Hispaniola, Jamaica, Puerto Rico
+      [[23,-84],[22,-78],[20,-74],[20,-77],[22,-82]],
+      [[19.8,-74],[19.5,-69],[18.2,-68.5],[18.2,-74]],
+      // South America
+      [[12,-72],[10,-62],[6,-52],[0,-50],[-5,-35],[-12,-38],[-22,-41],[-26,-48],[-34,-53],[-38,-57],[-44,-65],[-52,-69],[-55,-67],[-53,-74],[-45,-75],[-36,-73],[-24,-70],[-18,-71],[-14,-76],[-5,-81],[1,-79],[8,-77]],
+      // UK & Ireland
+      [[58.5,-5],[57,-2],[53,1],[51,1.3],[50,-5.5],[53,-4.5],[55,-5.5]],
+      [[55,-8],[54,-6],[52,-6.5],[51.5,-10],[54,-10]],
+      // Iceland
+      [[66.4,-23],[66.4,-14],[64.2,-14],[63.8,-21]],
+      // Continental Europe & Scandinavia
+      [[71,26],[70,31],[66,34],[65,25],[60,22],[60,30],[55,21],[54,14],[57,10],[54,8],[51,2],[48,-4.5],[43,-1.5],[43,-9],[37,-9],[36,-5.5],[38,0],[42,3],[43.5,7],[41,16],[38,16],[40,18],[44,13],[45,14],[40,20],[37,22],[38,24],[41,28],[45,30],[46,35],[45,39],[42,41]],
+      // Scandinavia
+      [[58,7],[62,5],[68,14],[71,25],[69,28],[65,25],[60,19],[56,13],[58,11]],
+      // Sicily, Sardinia, Corsica, Crete, Cyprus
+      [[38,13],[38,15.5],[36.8,15],[37.5,12.5]],
+      [[41,8.5],[41,9.7],[39,9.5],[39,8.4]],
+      // Africa
+      [[35.8,-5.5],[37,10],[33,12],[32,20],[31.5,32],[28,34],[22,37],[15,41],[11.5,43],[12,51],[4,48],[-2,41],[-10,40],[-16,40],[-24,35],[-30,31],[-34,25],[-34.5,18.5],[-28,16.5],[-18,12],[-6,12],[4,9],[6,2],[5,-4],[4.5,-8],[8,-13],[14,-17],[21,-17],[28,-13],[33,-8]],
+      // Madagascar
+      [[-12,49],[-16,50],[-25,47],[-25,44],[-18,44]],
+      // Asia Mainland (Arabia, India, SE Asia, China, Siberia)
+      [[41,29],[42,36],[41,41],[46,48],[47,39],[55,38],[64,40],[68,52],[70,68],[73,82],[77,104],[74,125],[71,145],[69,168],[66,179],[60,165],[52,158],[58,150],[54,138],[46,135],[40,129],[35,129],[35,126],[40,124],[38,118],[35,120],[31,122],[25,119],[22,114],[21,108],[16,108],[10,106],[13,101],[7,100],[1.5,104],[5,100],[14,98],[16,94],[22,92],[22,88],[16,81],[8,77.5],[15,74],[21,72],[23,68],[25,62],[27,56],[30,48],[29,48],[25,51],[24,56],[22,59],[17,54],[13,44],[20,40],[28,35],[31,34],[36,36],[36,27]],
+      // Sri Lanka, Taiwan, Hainan, Japan, Philippines
+      [[9.8,80],[8,81.8],[6,80.5],[7.5,79.8]],
+      [[25.2,121.5],[22,120.8],[23.5,120.1]],
+      [[45.5,142],[42,143],[41,140],[38,141],[35,140],[33,135],[31,131],[33,130],[36,136],[40,140]],
+      [[18.5,121],[14,122],[13,124],[11,125],[7,126],[6,122],[9,123],[12,121],[16,120]],
+      // Indonesia & New Guinea (Sumatra, Java, Borneo, Sulawesi, Papua)
+      [[5.5,95],[0,104],[-6,105.5],[-2,101],[3,98]],
+      [[-6,106],[-7,114],[-8.5,114],[-7.5,106]],
+      [[7,117],[1,118],[-3.5,116],[-3,111],[2,109],[5,115]],
+      [[1.5,125],[-2,122],[-5,122],[-5,119],[0,119.5]],
+      [[-1,131],[-3,141],[-7,147],[-10,150],[-9,143],[-8,138],[-4,134]],
+      // Australia & Tasmania
+      [[-11,142],[-17,146],[-24,152],[-33,151.5],[-38,149],[-38,141],[-35,136],[-32,132],[-33,124],[-35,118],[-34,115],[-22,114],[-18,122],[-14,126],[-12,131],[-12,136],[-16,139],[-11,142]],
+      [[-41,145],[-41,148],[-43.5,147],[-43,145.5]],
+      // New Zealand (North & South Islands)
+      [[-34.5,173],[-38,178],[-41.5,175],[-39,174]],
+      [[-41,173],[-44,172],[-46.5,168],[-45,167],[-42,171]],
+      // Antarctica Ridge
+      [[-70,-180],[-68,-120],[-65,-60],[-70,0],[-68,60],[-66,120],[-70,180],[-89,180],[-89,-180]]
+    ];
+
+    const PIXEL_CONTINENTS = EARTH_LANDMASS_LATLON.map(poly =>
+      poly.map(([lat, lon]) => {
+        const pt = latLonToXY(lat, lon);
+        return [pt.x, pt.y];
+      })
+    );
+
+    /* ========================================================================
+       3. SIMPLIFIED SINGLE-VIRUS STATE (195 COUNTRIES)
+       ======================================================================== */
+    let state = {
+      virus: {
+        name: 'ETHA-01',
+        size: 38,
+        transmission: 68,
+        infectivity: 64,
+        severity: 45,
+        mutation: 55,
+        hostRange: 60,
+        stability: 62,
+        symptoms: ['cough', 'fever']
+      },
+      symptomCategory: 'ALL',
+      regionFilter: 'ALL',
+      selectedCityId: null, // Hidden drawer until user clicks or selects a country
+      patientZeroId: 'india',
+      simRunning: false,
+      simSpeed: 1,
+      simDay: 0,
+      citySimData: {},
+      transmissionArcs: [],
+      camX: 620,
+      camY: 140,
+      zoom: 1.0,
+      crtEnabled: true
+    };
+
+    /* ========================================================================
+       4. START SCREEN & TOAST HELPERS
+       ======================================================================== */
+    function dismissStartScreen() {
+      AudioEngine.start();
+      const overlay = document.getElementById('startOverlay');
+      overlay.style.opacity = '0';
+      setTimeout(() => {
+        overlay.classList.add('hidden');
+        resizeEarthCanvas();
+      }, 280);
+    }
+
+    function showToast(msg, type = 'blue') {
+      const container = document.getElementById('toastContainer');
+      const el = document.createElement('div');
+      el.className = `${type === 'red' ? 'pixel-box-red text-red-200' : 'pixel-box-blue text-blue-200'} px-3 py-1.5 text-base flex items-center gap-2 pointer-events-auto`;
+      el.innerHTML = `<span class="w-2 h-2 ${type === 'red' ? 'bg-red-500' : 'bg-blue-400'} shrink-0"></span><span>${msg}</span>`;
+      container.appendChild(el);
+      setTimeout(() => {
+        el.style.opacity = '0';
+        el.style.transition = 'opacity 0.2s';
+        setTimeout(() => el.remove(), 220);
+      }, 2200);
+    }
+
+    /* ========================================================================
+       5. EPIDEMIOLOGICAL STATS & CITY FORECAST MATH
+       ======================================================================== */
+    function computeVirusEffectiveStats(v) {
+      let transBonus = 0;
+      let sevBonus = 0;
+      let lethalBonus = 0;
+
+      (v.symptoms || []).forEach(symId => {
+        const s = SYMPTOM_CATALOG.find(item => item.id === symId);
+        if (s) {
+          transBonus += s.transMod;
+          sevBonus += s.sevMod;
+          lethalBonus += s.lethalMod;
+        }
+      });
+
+      const sizeFilterBonus = Math.round((50 - v.size) * 0.22);
+      const sizePayloadBonus = Math.round((v.size - 50) * 0.25);
+
+      const effTransmission = Math.max(5, Math.min(130, v.transmission + transBonus + sizeFilterBonus));
+      const effInfectivity = Math.max(5, Math.min(120, v.infectivity + Math.round(v.mutation * 0.12)));
+      const effSeverity = Math.max(5, Math.min(140, v.severity + sevBonus + sizePayloadBonus));
+      const effLethality = Math.max(1, Math.min(95, Math.round((effSeverity * 0.42) + lethalBonus)));
+      const baseR0 = +(1.1 + (effTransmission / 100) * 2.6 + (effInfectivity / 100) * 2.2).toFixed(2);
+
+      return {
+        effTransmission,
+        effInfectivity,
+        effSeverity,
+        effLethality,
+        baseR0,
+        transBonus,
+        sevBonus
+      };
+    }
+
+    function analyzeCityImpact(virus, country) {
+      const stats = computeVirusEffectiveStats(virus);
+
+      let climatePenalty = 0;
+      let climateNote = 'Temperate climate supports steady nationwide transmission.';
+      if (country.tempType === 'hot' || country.tempType === 'tropical') {
+        climatePenalty = Math.max(0, (65 - virus.stability) * 0.35);
+        climateNote = virus.stability >= 65
+          ? 'High thermal resilience preserves contagion in warm climates.'
+          : 'Tropical heat & UV degrade exposed virions outdoors.';
+      } else if (country.tempType === 'cold') {
+        climatePenalty = Math.max(0, (55 - virus.stability) * 0.25);
+        climateNote = virus.stability >= 55
+          ? 'Capsid thrives in cold air and indoor crowding.'
+          : 'Sub-zero cold slows outdoor survival.';
+      }
+
+      const densityFactor = 0.78 + (country.densityScore * 0.48);
+      const healthMitigation = 1 - (country.health / 320);
+      const localR0 = Math.max(0.65, +(stats.baseR0 * densityFactor * healthMitigation * (1 - climatePenalty / 140)).toFixed(2));
+
+      const spreadVelocity = Math.max(0.15, (localR0 - 0.5) * (0.6 + country.transit * 0.6));
+      const daysToPeak = Math.max(6, Math.min(180, Math.round(62 / spreadVelocity)));
+      const collapseDays = Math.max(4, Math.round(daysToPeak * 0.65));
+
+      const attackRate = Math.min(0.96, Math.max(0.12, (localR0 / (localR0 + 1.15))));
+      const healthcareStrainPenalty = (country.densityScore * 1.35) - (country.health / 100);
+      const localCFR = Math.min(0.88, Math.max(0.01, (stats.effLethality / 100) * (1 + healthcareStrainPenalty * 0.45)));
+      const estInfected = Math.round(country.pop * attackRate);
+      const estDeaths = Math.round(estInfected * localCFR);
+
+      let riskRating = 'MODERATE RISK';
+      if (localR0 >= 3.4 || localCFR >= 0.35) riskRating = 'EXTREME RISK';
+      else if (localR0 >= 2.3 || localCFR >= 0.18) riskRating = 'SEVERE RISK';
+      else if (localR0 >= 1.5) riskRating = 'ELEVATED RISK';
+
+      const activeSymNames = (virus.symptoms || [])
+        .map(id => SYMPTOM_CATALOG.find(s => s.id === id)?.name)
+        .filter(Boolean);
+      const symText = activeSymNames.length
+        ? `Citizens develop ${activeSymNames.slice(0, 3).join(', ')}.`
+        : 'Asymptomatic carriers spread the strain across borders undetected.';
+
+      const hostText = virus.hostRange >= 60
+        ? `High host range (${virus.hostRange}) spills into ${country.fauna}.`
+        : `Human-restricted transmission across ${country.density.toLowerCase()}-density provinces.`;
+
+      const narrative = `With a national R0 of ${localR0}, ${virus.name} saturates ${country.name} in ~${daysToPeak} days and overwhelms its ${country.health}% healthcare capacity by Day ${collapseDays}. ${symText} ${climateNote} ${hostText}`;
+
+      return {
+        localR0,
+        daysToPeak,
+        collapseDays,
+        estDeaths,
+        riskRating,
+        narrative
+      };
+    }
+
+    /* ========================================================================
+       6. LEFT PANEL RENDERING (7 SLIDERS, 24 SYMPTOM PILLS, & PIXEL SPRITE)
+       ======================================================================== */
+    function renderLeftPanel() {
+      const v = state.virus;
+      document.getElementById('virusNameInput').value = v.name;
+
+      const list = document.getElementById('traitsList');
+      list.innerHTML = TRAIT_DEFINITIONS.map(t => {
+        const val = v[t.key];
+        return `
+          <div class="pixel-inset-blue px-2.5 py-2">
+            <div class="flex items-center justify-between mb-0.5">
+              <span class="font-pixel text-[8px] sm:text-[9px] text-blue-200">
+                <span class="text-red-400">${t.num}.</span> ${t.name}
+              </span>
+              <span id="traitVal_${t.key}" class="font-pixel text-[9px] text-red-400">${val}</span>
+            </div>
+            <div class="text-xs text-blue-300 mb-1.5">${t.hint}</div>
+            <input
+              type="range"
+              min="1"
+              max="100"
+              value="${val}"
+              oninput="updateTraitSlider('${t.key}', this.value)"
+              class="pixel-slider"
+            />
+          </div>
+        `;
+      }).join('');
+
+      renderSymptomsBar();
+      updateVirusPreviewHeader();
+      drawPixelVirusSprite();
+    }
+
+    function setSymptomCategory(cat) {
+      AudioEngine.click();
+      state.symptomCategory = cat;
+      document.querySelectorAll('.sym-cat-btn').forEach(btn => {
+        const isSelected = btn.getAttribute('data-cat') === cat;
+        btn.className = isSelected
+          ? 'sym-cat-btn px-1.5 py-0.5 border border-red-500 bg-red-950 font-pixel text-[7px] text-white cursor-pointer'
+          : 'sym-cat-btn px-1.5 py-0.5 border border-blue-800 bg-[#050a18] font-pixel text-[7px] text-blue-300 cursor-pointer';
+      });
+      renderSymptomsBar();
+    }
+
+    function previewSymptomTooltip(symId) {
+      const sym = SYMPTOM_CATALOG.find(s => s.id === symId);
+      const box = document.getElementById('symptomHoverTooltip');
+      if (sym && box) {
+        box.innerHTML = `<strong class="text-red-400">${sym.name} [${sym.cat}]:</strong> ${sym.desc}`;
+      }
+    }
+
+    function renderSymptomsBar() {
+      const v = state.virus;
+      const container = document.getElementById('symptomsBarContainer');
+      const filtered = state.symptomCategory === 'ALL'
+        ? SYMPTOM_CATALOG
+        : SYMPTOM_CATALOG.filter(s => s.cat === state.symptomCategory);
+
+      container.innerHTML = filtered.map(sym => {
+        const active = v.symptoms.includes(sym.id);
+        return `
+          <button
+            onclick="toggleSymptom('${sym.id}')"
+            onmouseenter="previewSymptomTooltip('${sym.id}')"
+            class="px-2 py-1 border-2 font-pixel text-[7px] sm:text-[8px] flex items-center gap-1.5 transition-colors cursor-pointer ${
+              active
+                ? 'bg-[#3b0710] border-red-500 text-white'
+                : 'bg-[#050a18] border-blue-800 text-blue-300 hover:border-blue-500'
+            }"
+          >
+            <span class="w-2 h-2 ${active ? 'bg-red-500' : 'bg-blue-700'}"></span>
+            <span>${sym.name}</span>
+          </button>
+        `;
+      }).join('');
+
+      document.getElementById('activeSymptomCount').textContent = `${v.symptoms.length} / ${SYMPTOM_CATALOG.length}`;
+    }
+
+    function updateVirusPreviewHeader() {
+      const stats = computeVirusEffectiveStats(state.virus);
+      document.getElementById('previewR0Label').textContent = stats.baseR0;
+      document.getElementById('previewLethalityLabel').textContent = `${stats.effLethality}%`;
+      document.getElementById('symptomBonusSummary').textContent =
+        `${stats.transBonus >= 0 ? '+' : ''}${stats.transBonus}% SPREAD | +${stats.sevBonus}% SEV`;
+    }
+
+    function drawPixelVirusSprite() {
+      const canvas = document.getElementById('virusSpriteCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const v = state.virus;
+
+      ctx.clearRect(0, 0, 48, 48);
+      ctx.fillStyle = '#050a18';
+      ctx.fillRect(0, 0, 48, 48);
+
+      const cx = 24;
+      const cy = 24;
+      const coreR = Math.round(6 + (v.size / 100) * 8);
+      const spikes = Math.round(6 + (v.infectivity / 100) * 8);
+      const spikeL = Math.round(3 + (v.transmission / 100) * 6);
+
+      for (let i = 0; i < spikes; i++) {
+        const angle = (i / spikes) * Math.PI * 2;
+        const sx = Math.round(cx + Math.cos(angle) * (coreR + spikeL));
+        const sy = Math.round(cy + Math.sin(angle) * (coreR + spikeL));
+        ctx.strokeStyle = v.severity > 60 ? '#ef4444' : '#60a5fa';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(sx, sy);
+        ctx.stroke();
+        ctx.fillStyle = '#ef4444';
+        ctx.fillRect(sx - 1, sy - 1, 3, 3);
+      }
+
+      if (v.stability > 55) {
+        ctx.strokeStyle = '#2563eb';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(cx - coreR - 2, cy - coreR - 2, (coreR + 2) * 2, (coreR + 2) * 2);
+      }
+
+      ctx.fillStyle = '#991b1b';
+      ctx.fillRect(cx - coreR, cy - coreR, coreR * 2, coreR * 2);
+      ctx.fillStyle = '#ef4444';
+      ctx.fillRect(cx - coreR + 2, cy - coreR + 2, (coreR - 2) * 2, (coreR - 2) * 2);
+    }
+
+    function handleVirusNameChange(val) {
+      state.virus.name = (val || 'ETHA-01').toUpperCase();
+      if (state.selectedCityId) updateSelectedCityDrawer();
+    }
+
+    function updateTraitSlider(key, val) {
+      state.virus[key] = parseInt(val, 10);
+      document.getElementById(`traitVal_${key}`).textContent = state.virus[key];
+      updateVirusPreviewHeader();
+      drawPixelVirusSprite();
+      if (state.selectedCityId) updateSelectedCityDrawer();
+    }
+
+    function toggleSymptom(symId) {
+      const syms = state.virus.symptoms;
+      const idx = syms.indexOf(symId);
+      if (idx >= 0) {
+        syms.splice(idx, 1);
+        AudioEngine.toggle(false);
+      } else {
+        syms.push(symId);
+        AudioEngine.toggle(true);
+      }
+      previewSymptomTooltip(symId);
+      renderSymptomsBar();
+      updateVirusPreviewHeader();
+      drawPixelVirusSprite();
+      if (state.selectedCityId) updateSelectedCityDrawer();
+    }
+
+    function randomizeVirusStats() {
+      AudioEngine.click();
+      TRAIT_DEFINITIONS.forEach(t => {
+        state.virus[t.key] = Math.floor(15 + Math.random() * 82);
+      });
+      const count = 4 + Math.floor(Math.random() * 6);
+      const shuffled = [...SYMPTOM_CATALOG].sort(() => 0.5 - Math.random());
+      state.virus.symptoms = shuffled.slice(0, count).map(s => s.id);
+      renderLeftPanel();
+      if (state.selectedCityId) updateSelectedCityDrawer();
+      showToast('GENOME MUTATED', 'red');
+    }
+
+    /* ========================================================================
+       7. GLOBAL SIMULATION & PLAYBACK CONTROLS (ALL 195 COUNTRIES)
+       ======================================================================== */
+    function initSimulationData() {
+      state.simDay = 0;
+      state.simRunning = false;
+      state.transmissionArcs = [];
+      state.citySimData = {};
+
+      WORLD_COUNTRIES.forEach(country => {
+        const isP0 = country.id === state.patientZeroId;
+        state.citySimData[country.id] = {
+          infected: isP0 ? Math.min(country.pop, 350) : 0,
+          dead: 0,
+          seeded: isP0
+        };
+      });
+
+      updatePlayPauseButton();
+      updateGlobalTelemetry();
+    }
+
+    function triggerReleaseOrReset() {
+      AudioEngine.start();
+      if (state.simDay > 0 && !state.simRunning) {
+        initSimulationData();
+      }
+      state.simRunning = true;
+      updatePlayPauseButton();
+      const p0 = WORLD_COUNTRIES.find(c => c.id === state.patientZeroId);
+      showToast(`${state.virus.name} RELEASED IN ${p0.name}`, 'red');
+    }
+
+    function toggleSimulationPlay() {
+      AudioEngine.click();
+      state.simRunning = !state.simRunning;
+      updatePlayPauseButton();
+    }
+
+    function updatePlayPauseButton() {
+      const btn = document.getElementById('simPlayPauseBtn');
+      const releaseBtn = document.getElementById('releaseVirusBtn');
+      if (state.simRunning) {
+        btn.innerHTML = '&#10074;&#10074; PAUSE';
+        releaseBtn.innerHTML = '<span>OUTBREAK ACTIVE...</span>';
+      } else {
+        btn.innerHTML = '&#9654; PLAY';
+        releaseBtn.innerHTML = state.simDay > 0
+          ? '<span>RESTART OUTBREAK</span><span>&gt;&gt;</span>'
+          : '<span>RELEASE VIRUS</span><span>&gt;&gt;</span>';
+      }
+    }
+
+    function cycleSimSpeed() {
+      AudioEngine.click();
+      state.simSpeed = state.simSpeed === 1 ? 2 : state.simSpeed === 2 ? 4 : 1;
+      document.getElementById('simSpeedBtn').textContent = `${state.simSpeed}X`;
+    }
+
+    function resetSimulation() {
+      AudioEngine.click();
+      initSimulationData();
+      if (state.selectedCityId) updateSelectedCityDrawer();
+      showToast('EARTH RESET', 'blue');
+    }
+
+    function setPatientZeroToSelected() {
+      if (!state.selectedCityId) return;
+      AudioEngine.start();
+      state.patientZeroId = state.selectedCityId;
+      initSimulationData();
+      updateSelectedCityDrawer();
+      const country = WORLD_COUNTRIES.find(c => c.id === state.patientZeroId);
+      showToast(`PATIENT ZERO: ${country.name}`, 'red');
+    }
+
+    function stepSimulation() {
+      if (!state.simRunning) return;
+
+      const virus = state.virus;
+      const stats = computeVirusEffectiveStats(virus);
+      state.simDay += 0.5 * state.simSpeed;
+
+      let totalInfected = 0;
+      let totalDead = 0;
+      let infectedCountriesCount = 0;
+
+      WORLD_COUNTRIES.forEach(country => {
+        const cData = state.citySimData[country.id];
+        if (cData.infected > 0 || cData.dead > 0) {
+          infectedCountriesCount++;
+        }
+        if (cData.infected > 0) {
+          const impact = analyzeCityImpact(virus, country);
+          const healthy = Math.max(0, country.pop - cData.infected - cData.dead);
+
+          const growthRate = (impact.localR0 * 0.044) * state.simSpeed;
+          const susceptibleRatio = healthy / country.pop;
+          const newCases = Math.min(healthy, Math.ceil(cData.infected * growthRate * susceptibleRatio + (susceptibleRatio > 0.005 ? 25 * state.simSpeed : 0)));
+
+          const dailyFatalityRate = (stats.effLethality / 100) * 0.012 * state.simSpeed;
+          const newDeaths = Math.min(cData.infected, Math.floor(cData.infected * dailyFatalityRate));
+
+          cData.infected = Math.max(0, cData.infected + newCases - newDeaths);
+          cData.dead += newDeaths;
+
+          const infectionRatio = (cData.infected + cData.dead) / country.pop;
+          if (infectionRatio > 0.02 && Math.random() < (0.085 * country.transit * (stats.effTransmission / 60) * state.simSpeed)) {
+            const uninfectedCountries = WORLD_COUNTRIES.filter(target => !state.citySimData[target.id].seeded);
+            if (uninfectedCountries.length > 0) {
+              // Weight spread toward geographic neighbors & major transit hubs
+              const targetCountry = uninfectedCountries[Math.floor(Math.random() * uninfectedCountries.length)];
+              state.citySimData[targetCountry.id].seeded = true;
+              state.citySimData[targetCountry.id].infected = Math.min(targetCountry.pop, 60);
+              state.transmissionArcs.push({
+                fromX: country.x,
+                fromY: country.y,
+                toX: targetCountry.x,
+                toY: targetCountry.y,
+                life: 1.0
+              });
+              AudioEngine.playTone(300, 'square', 0.04, 0.02, 460);
+            }
+          }
+        }
+
+        totalInfected += cData.infected;
+        totalDead += cData.dead;
+      });
+
+      state.transmissionArcs = state.transmissionArcs
+        .map(a => ({ ...a, life: a.life - 0.03 }))
+        .filter(a => a.life > 0);
+
+      updateGlobalTelemetry(totalInfected, totalDead, infectedCountriesCount);
+      if (state.selectedCityId) updateSelectedCityDrawer();
+    }
+
+    function updateGlobalTelemetry(totalInf = 0, totalDead = 0, infectedNations = 0) {
+      if (totalInf === 0 && totalDead === 0 && infectedNations === 0) {
+        WORLD_COUNTRIES.forEach(c => {
+          const d = state.citySimData[c.id];
+          if (d) {
+            totalInf += d.infected;
+            totalDead += d.dead;
+            if (d.infected > 0 || d.dead > 0) infectedNations++;
+          }
+        });
+      }
+      document.getElementById('statDay').textContent = Math.floor(state.simDay);
+      document.getElementById('statCountries').textContent = `${infectedNations}/195`;
+      document.getElementById('statInfected').textContent = formatNumber(totalInf);
+      document.getElementById('statDead').textContent = formatNumber(totalDead);
+    }
+
+    /* ========================================================================
+       8. COUNTRY SEARCH DIRECTORY & FORECAST DRAWER (OPENED ON CLICK)
+       ======================================================================== */
+    function filterCountryDropdown(query) {
+      const list = document.getElementById('countryDropdownList');
+      const q = (query || '').trim().toLowerCase();
+      const matches = WORLD_COUNTRIES.filter(c => {
+        const regionOk = state.regionFilter === 'ALL' || c.region === state.regionFilter;
+        const textOk = !q || c.name.toLowerCase().includes(q) || c.region.toLowerCase().includes(q);
+        return regionOk && textOk;
+      }).slice(0, 40);
+
+      if (matches.length === 0) {
+        list.innerHTML = `<div class="px-3 py-2 text-sm text-blue-300">No sovereign country found.</div>`;
+      } else {
+        list.innerHTML = matches.map(c => {
+          const d = state.citySimData[c.id] || { infected: 0 };
+          const isInf = d.infected > 0 || c.id === state.patientZeroId;
+          return `
+            <button
+              onclick="selectCountryFromDirectory('${c.id}')"
+              class="w-full text-left px-2.5 py-1.5 hover:bg-blue-900/60 flex items-center justify-between gap-2 text-sm cursor-pointer"
+            >
+              <span class="flex items-center gap-1.5 font-pixel text-[8px] ${isInf ? 'text-red-400' : 'text-blue-100'}">
+                <span class="w-2 h-2 ${isInf ? 'bg-red-500' : 'bg-blue-400'}"></span>
+                ${c.name}
+              </span>
+              <span class="text-xs text-blue-300">${formatCompactPop(c.pop)}</span>
+            </button>
+          `;
+        }).join('');
+      }
+      list.classList.remove('hidden');
+    }
+
+    function showCountryDropdown() {
+      filterCountryDropdown(document.getElementById('countrySearchInput').value);
+    }
+
+    function handleRegionFilterChange(region) {
+      AudioEngine.click();
+      state.regionFilter = region;
+      filterCountryDropdown(document.getElementById('countrySearchInput').value);
+    }
+
+    function selectCountryFromDirectory(countryId) {
+      const country = WORLD_COUNTRIES.find(c => c.id === countryId);
+      if (!country) return;
+      document.getElementById('countryDropdownList').classList.add('hidden');
+      document.getElementById('countrySearchInput').value = country.name;
+
+      // Center camera on selected country and zoom in slightly so small nations are crystal clear
+      if (state.zoom < 1.35) {
+        state.zoom = 1.45;
+        document.getElementById('zoomLevelBadge').textContent = `${state.zoom.toFixed(1)}X`;
+      }
+      if (earthCanvas) {
+        state.camX = country.x - (earthCanvas.width / (2 * state.zoom));
+        state.camY = country.y - (earthCanvas.height / (2 * state.zoom));
+        clampCamera();
+      }
+      openCityDrawer(countryId);
+    }
+
+    document.addEventListener('click', e => {
+      const searchInput = document.getElementById('countrySearchInput');
+      const dropdown = document.getElementById('countryDropdownList');
+      if (searchInput && dropdown && !searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.classList.add('hidden');
+      }
+    });
+
+    function openCityDrawer(countryId) {
+      AudioEngine.click();
+      state.selectedCityId = countryId;
+      document.getElementById('cityForecastDrawer').classList.remove('hidden');
+      updateSelectedCityDrawer();
+    }
+
+    function closeCityDrawer() {
+      AudioEngine.click();
+      state.selectedCityId = null;
+      document.getElementById('cityForecastDrawer').classList.add('hidden');
+    }
+
+    function updateSelectedCityDrawer() {
+      const country = WORLD_COUNTRIES.find(c => c.id === state.selectedCityId);
+      if (!country) return;
+
+      const virus = state.virus;
+      const cData = state.citySimData[country.id] || { infected: 0, dead: 0 };
+      const impact = analyzeCityImpact(virus, country);
+
+      document.getElementById('cityRegionBadge').textContent = country.region;
+      document.getElementById('cityClimateBadge').textContent = country.climate;
+      document.getElementById('cityRiskRatingBadge').textContent = impact.riskRating;
+      document.getElementById('cityDetailName').textContent = country.name;
+      document.getElementById('cityDetailPop').textContent = country.pop.toLocaleString();
+
+      const healthy = Math.max(0, country.pop - cData.infected - cData.dead);
+      const healthyPct = (healthy / country.pop) * 100;
+      const infPct = (cData.infected / country.pop) * 100;
+      const deadPct = (cData.dead / country.pop) * 100;
+
+      document.getElementById('cityBarHealthy').style.width = `${healthyPct}%`;
+      document.getElementById('cityBarInfected').style.width = `${infPct}%`;
+      document.getElementById('cityBarDead').style.width = `${deadPct}%`;
+
+      document.getElementById('cityLiveInfected').textContent = formatNumber(cData.infected);
+      document.getElementById('cityLiveDead').textContent = formatNumber(cData.dead);
+
+      let statusLabel = 'UNINFECTED';
+      if (country.id === state.patientZeroId && state.simDay === 0) statusLabel = 'PATIENT ZERO';
+      else if (deadPct > 40) statusLabel = 'CRITICAL COLLAPSE';
+      else if (cData.infected > 0) statusLabel = 'ACTIVE OUTBREAK';
+      document.getElementById('cityLiveStatusText').textContent = statusLabel;
+
+      document.getElementById('predLocalR0').textContent = impact.localR0;
+      document.getElementById('predDaysToPeak').textContent = `${impact.daysToPeak} DAYS`;
+      document.getElementById('predEstDeaths').textContent = formatNumber(impact.estDeaths);
+      document.getElementById('predCollapseDays').textContent = `${impact.collapseDays} DAYS`;
+
+      document.getElementById('predVirusNameSpan').textContent = virus.name;
+      document.getElementById('predCityNameSpan').textContent = country.name;
+      document.getElementById('predNarrativeText').textContent = impact.narrative;
+    }
+
+    /* ========================================================================
+       9. SCROLLABLE & ZOOMABLE ACTUAL PIXEL EARTH CANVAS (ALL 195 COUNTRIES)
+       ======================================================================== */
+    let earthCanvas, earthCtx;
+    let isDraggingMap = false;
+    let dragStartX = 0;
+    let dragStartY = 0;
+    let dragMoved = false;
+
+    function initEarthCanvas() {
+      earthCanvas = document.getElementById('earthCanvas');
+      earthCtx = earthCanvas.getContext('2d');
+
+      earthCanvas.addEventListener('mousedown', e => {
+        isDraggingMap = true;
+        dragMoved = false;
+        dragStartX = e.clientX;
+        dragStartY = e.clientY;
+      });
+
+      window.addEventListener('mousemove', e => {
+        if (!isDraggingMap) return;
+        const dx = e.clientX - dragStartX;
+        const dy = e.clientY - dragStartY;
+        if (Math.abs(dx) > 3 || Math.abs(dy) > 3) dragMoved = true;
+        dragStartX = e.clientX;
+        dragStartY = e.clientY;
+        panMap(-dx / state.zoom, -dy / state.zoom);
+      });
+
+      window.addEventListener('mouseup', e => {
+        if (isDraggingMap && !dragMoved && e.target === earthCanvas) {
+          handleEarthClick(e.clientX, e.clientY);
+        }
+        isDraggingMap = false;
+      });
+
+      earthCanvas.addEventListener('touchstart', e => {
+        if (e.touches.length === 1) {
+          isDraggingMap = true;
+          dragMoved = false;
+          dragStartX = e.touches[0].clientX;
+          dragStartY = e.touches[0].clientY;
+        }
+      }, { passive: true });
+
+      earthCanvas.addEventListener('touchmove', e => {
+        if (!isDraggingMap || e.touches.length !== 1) return;
+        const dx = e.touches[0].clientX - dragStartX;
+        const dy = e.touches[0].clientY - dragStartY;
+        if (Math.abs(dx) > 4 || Math.abs(dy) > 4) dragMoved = true;
+        dragStartX = e.touches[0].clientX;
+        dragStartY = e.touches[0].clientY;
+        panMap(-dx / state.zoom, -dy / state.zoom);
+      }, { passive: true });
+
+      earthCanvas.addEventListener('touchend', e => {
+        if (isDraggingMap && !dragMoved && e.changedTouches.length === 1) {
+          handleEarthClick(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+        }
+        isDraggingMap = false;
+      });
+
+      earthCanvas.addEventListener('wheel', e => {
+        e.preventDefault();
+        adjustZoom(e.deltaY < 0 ? 0.2 : -0.2);
+      }, { passive: false });
+
+      window.addEventListener('resize', resizeEarthCanvas);
+    }
+
+    function resizeEarthCanvas() {
+      const wrapper = document.getElementById('earthCanvasWrapper');
+      if (!wrapper || !earthCanvas) return;
+      earthCanvas.width = wrapper.clientWidth;
+      earthCanvas.height = wrapper.clientHeight;
+      clampCamera();
+    }
+
+    function clampCamera() {
+      if (!earthCanvas) return;
+      const viewW = earthCanvas.width / state.zoom;
+      const viewH = earthCanvas.height / state.zoom;
+      const maxX = Math.max(0, WORLD_W - viewW);
+      const maxY = Math.max(0, WORLD_H - viewH);
+      state.camX = Math.max(0, Math.min(maxX, state.camX));
+      state.camY = Math.max(0, Math.min(maxY, state.camY));
+    }
+
+    function panMap(dx, dy) {
+      state.camX += dx;
+      state.camY += dy;
+      clampCamera();
+    }
+
+    function adjustZoom(delta) {
+      AudioEngine.click();
+      state.zoom = Math.max(0.65, Math.min(4.0, +(state.zoom + delta).toFixed(2)));
+      document.getElementById('zoomLevelBadge').textContent = `${state.zoom.toFixed(1)}X`;
+      clampCamera();
+    }
+
+    function handleEarthClick(clientX, clientY) {
+      const rect = earthCanvas.getBoundingClientRect();
+      const worldX = ((clientX - rect.left) / state.zoom) + state.camX;
+      const worldY = ((clientY - rect.top) / state.zoom) + state.camY;
+
+      let closestCountry = null;
+      let minDist = 26 / state.zoom;
+
+      WORLD_COUNTRIES.forEach(country => {
+        if (state.regionFilter !== 'ALL' && country.region !== state.regionFilter) return;
+        const dist = Math.hypot(country.x - worldX, country.y - worldY);
+        if (dist < minDist) {
+          minDist = dist;
+          closestCountry = country;
+        }
+      });
+
+      if (closestCountry) {
+        openCityDrawer(closestCountry.id);
+      }
+    }
+
+    function renderEarthLoop(timestamp) {
+      if (earthCanvas) {
+        const ctx = earthCtx;
+        const w = earthCanvas.width;
+        const h = earthCanvas.height;
+
+        ctx.save();
+        ctx.fillStyle = '#051329';
+        ctx.fillRect(0, 0, w, h);
+
+        ctx.scale(state.zoom, state.zoom);
+        ctx.translate(-state.camX, -state.camY);
+
+        // Latitude / Longitude Graticule Lines
+        ctx.strokeStyle = '#0a2247';
+        ctx.lineWidth = 1.5;
+        for (let gx = 0; gx <= WORLD_W; gx += 90) {
+          ctx.beginPath();
+          ctx.moveTo(gx, 0);
+          ctx.lineTo(gx, WORLD_H);
+          ctx.stroke();
+        }
+        for (let gy = 0; gy <= WORLD_H; gy += 90) {
+          ctx.beginPath();
+          ctx.moveTo(0, gy);
+          ctx.lineTo(WORLD_W, gy);
+          ctx.stroke();
+        }
+
+        // Equator & Prime Meridian Highlight
+        ctx.strokeStyle = '#133873';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0, WORLD_H / 2);
+        ctx.lineTo(WORLD_W, WORLD_H / 2);
+        ctx.moveTo(WORLD_W / 2, 0);
+        ctx.lineTo(WORLD_W / 2, WORLD_H);
+        ctx.stroke();
+
+        // Realistic Pixelated Continents & Islands
+        PIXEL_CONTINENTS.forEach(poly => {
+          ctx.beginPath();
+          poly.forEach((pt, idx) => {
+            if (idx === 0) ctx.moveTo(pt[0], pt[1]);
+            else ctx.lineTo(pt[0], pt[1]);
+          });
+          ctx.closePath();
+          ctx.fillStyle = '#0d2b5c';
+          ctx.fill();
+          ctx.lineWidth = 2.5;
+          ctx.strokeStyle = '#2b7fff';
+          ctx.stroke();
+        });
+
+        // Red Transmission Arcs
+        state.transmissionArcs.forEach(arc => {
+          ctx.strokeStyle = `rgba(255, 42, 60, ${arc.life})`;
+          ctx.lineWidth = 2.2;
+          ctx.setLineDash([5, 4]);
+          ctx.beginPath();
+          ctx.moveTo(arc.fromX, arc.fromY);
+          const midX = (arc.fromX + arc.toX) / 2;
+          const midY = Math.min(arc.fromY, arc.toY) - 40;
+          ctx.quadraticCurveTo(midX, midY, arc.toX, arc.toY);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        });
+
+        // All 195 Sovereign Country Pins & Red Outbreak Auras
+        const pulse = Math.sin(timestamp / 220) * 2.5;
+        WORLD_COUNTRIES.forEach(country => {
+          if (state.regionFilter !== 'ALL' && country.region !== state.regionFilter) return;
+
+          const cData = state.citySimData[country.id] || { infected: 0, dead: 0 };
+          const affectedRatio = (cData.infected + cData.dead) / country.pop;
+          const isInfected = affectedRatio > 0 || country.id === state.patientZeroId;
+          const isSelected = country.id === state.selectedCityId;
+
+          if (affectedRatio > 0) {
+            const auraRadius = Math.min(34, 8 + affectedRatio * 26 + pulse);
+            ctx.fillStyle = 'rgba(255, 42, 60, 0.30)';
+            ctx.fillRect(country.x - auraRadius, country.y - auraRadius, auraRadius * 2, auraRadius * 2);
+          }
+
+          if (isSelected) {
+            ctx.strokeStyle = '#ff2a3c';
+            ctx.lineWidth = 2;
+            const box = 11 + Math.round(pulse * 0.5);
+            ctx.strokeRect(country.x - box, country.y - box, box * 2, box * 2);
+          }
+
+          const nodeSize = country.pop > 80000000 ? 8 : country.pop > 15000000 ? 6 : 5;
+          ctx.fillStyle = isInfected ? '#ff2a3c' : '#7cc4ff';
+          ctx.fillRect(country.x - nodeSize / 2, country.y - nodeSize / 2, nodeSize, nodeSize);
+          ctx.strokeStyle = '#f8fafc';
+          ctx.lineWidth = 1;
+          ctx.strokeRect(country.x - nodeSize / 2, country.y - nodeSize / 2, nodeSize, nodeSize);
+
+          // Progressive Label Decluttering based on Zoom & Population so all 195 countries stay readable
+          const showLabel =
+            isSelected ||
+            isInfected ||
+            state.zoom >= 2.2 ||
+            (state.zoom >= 1.5 && country.pop >= 15000000) ||
+            (state.zoom >= 1.0 && country.pop >= 55000000) ||
+            country.pop >= 120000000;
+
+          if (showLabel) {
+            ctx.font = 'bold 11px "VT323", monospace';
+            const labelText = `${country.name} (${formatCompactPop(country.pop)})`;
+            const textW = ctx.measureText(labelText).width;
+            ctx.fillStyle = 'rgba(5, 19, 41, 0.88)';
+            ctx.fillRect(country.x - textW / 2 - 2, country.y + 6, textW + 4, 12);
+
+            ctx.fillStyle = isSelected ? '#ffffff' : isInfected ? '#ff5c6c' : '#93c5fd';
+            ctx.textAlign = 'center';
+            ctx.fillText(labelText, country.x, country.y + 15);
+          }
+        });
+
+        ctx.restore();
+      }
+      requestAnimationFrame(renderEarthLoop);
+    }
+
+    /* ========================================================================
+       10. HELPERS & INITIALIZATION
+       ======================================================================== */
+    function formatNumber(n) {
+      if (n >= 1e9) return (n / 1e9).toFixed(2) + 'B';
+      if (n >= 1e6) return (n / 1e6).toFixed(2) + 'M';
+      if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+      return Math.round(n).toString();
+    }
+
+    function formatCompactPop(n) {
+      if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+      return (n / 1e3).toFixed(0) + 'K';
+    }
+
+    function toggleAudio() {
+      AudioEngine.enabled = !AudioEngine.enabled;
+      document.getElementById('toggleAudioBtn').textContent = `SFX:${AudioEngine.enabled ? 'ON' : 'OFF'}`;
+      if (AudioEngine.enabled) AudioEngine.click();
+    }
+
+    function toggleCRT() {
+      AudioEngine.click();
+      state.crtEnabled = !state.crtEnabled;
+      document.getElementById('crtOverlay').classList.toggle('hidden', !state.crtEnabled);
+      document.getElementById('toggleCrtBtn').textContent = `CRT:${state.crtEnabled ? 'ON' : 'OFF'}`;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderLeftPanel();
+      initEarthCanvas();
+      resizeEarthCanvas();
+      initSimulationData();
+
+      setInterval(stepSimulation, 450);
+      requestAnimationFrame(renderEarthLoop);
+    });
+  </script>
+</body>
+</html>
